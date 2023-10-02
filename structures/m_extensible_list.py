@@ -146,10 +146,29 @@ class ExtensibleList:
         return self._capacity
 
     def sort(self) -> None:
-      """
-      Sort elements inside _data based on < comparisons.
-      """
-      # IMPLEMENT ME!
-      pass
+        """
+        Sort elements inside _data based on < comparisons.
+        """
+        self._quick_sort(0, self._size - 1)
+
+    def _quick_sort(self, low: int, high: int) -> None:
+        if low < high:
+            pi = self._partition(low, high)
+            self._quick_sort(low, pi - 1)
+            self._quick_sort(pi + 1, high)
+
+    def _partition(self, low: int, high: int) -> int:
+        pivot_index = high  # 可以选择任何元素作为基准，这里选择最后一个
+        pivot = self._data[pivot_index]
+        i = low - 1
+        for j in range(low, high):
+            if self._data[j] < pivot:  # 确保对象实现了 __lt__ 方法
+                i += 1
+                self._data[i], self._data[j] = self._data[j], self._data[i]
+        self._data[i + 1], self._data[high] = self._data[high], self._data[i + 1]
+        return i + 1
+
+
+
 
 
