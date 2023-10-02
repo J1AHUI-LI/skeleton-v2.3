@@ -25,42 +25,41 @@ from structures.m_entry import Entry
 
 
 class Map:
-    """
-    An implementation of the Map ADT.
-    The provided methods consume keys and values via the Entry type.
-    """
+    LOAD_FACTOR = 0.75  # 一般来说，装填因子设置为 0.75 是比较合适的
 
     def __init__(self) -> None:
-        """
-        Construct the map.
-        You are free to make any changes you find suitable in this function
-        to initialise your map.
-        """
         self.size = 10
         self.map = [None] * self.size
         self.element_count = 0
+
+    def _resize(self):
+        old_map = self.map
+        self.size = self.size * 2
+        self.map = [None] * self.size
+        self.element_count = 0  # 重新计数
+        for bucket in old_map:
+            if bucket is not None:
+                for entry in bucket:
+                    self.insert(entry)
+
     def _get_hash(self, key):
         return hash(key) % self.size
 
     def insert(self, entry: Entry) -> Any | None:
-        """
-        Associate value v with key k for efficient lookups. You may wish
-        to return the old value if k is already inside the map after updating
-        to the new value v.
-        """
-        key_hash = self._get_hash(entry.get_key())
-        key_value = [entry.get_key(), entry.get_value()]
+        if self.element_count / self.size > self.LOAD_FACTOR:  # 装填因子超过阈值时扩容
+            self._resize()
 
+        key_hash = self._get_hash(entry.get_key())
         if self.map[key_hash] is None:
-            self.map[key_hash] = list([key_value])
-            self.element_count += 1  # 插入新元素时更新元素个数
+            self.map[key_hash] = [entry]
+            self.element_count += 1
         else:
-            for pair in self.map[key_hash]:
-                if pair[0] == entry.get_key():
-                    pair[1] = entry.get_value()
-                    return  # 如果是更新现有元素，不改变元素个数
-            self.map[key_hash].append(key_value)
-            self.element_count += 1  # 插入新元素时更新元素个数
+            for stored_entry in self.map[key_hash]:
+                if stored_entry.get_key() == entry.get_key():
+                    stored_entry.update_value(entry.get_value())
+                    return
+            self.map[key_hash].append(entry)
+            self.element_count += 1
 
     def insert_kv(self, key: Any, value: Any) -> Any | None:
         """
@@ -82,18 +81,14 @@ class Map:
         self.insert(entry)
 
     def remove(self, key: Any) -> None:
-        """
-        Remove the key/value pair corresponding to key k from the
-        data structure. Don't return anything.
-        """
-        # You may or may not need this variable depending on your impl.
-        # dummy_entry = Entry(key, None) # Feel free to remove me...
         key_hash = self._get_hash(key)
         if self.map[key_hash] is not None:
-            for i in range(len(self.map[key_hash])):
-                if self.map[key_hash][i][0] == key:
+            for i, entry in enumerate(self.map[key_hash]):
+                if entry.get_key() == key:
                     self.map[key_hash].pop(i)
-                    self.element_count -= 1  # 移除元素时更新元素个数
+                    self.element_count -= 1
+                    if not self.map[key_hash]:
+                        self.map[key_hash] = None  # 如果列表为空，则设置为 None
                     return
 
     def find(self, key: Any) -> Any | None:
@@ -105,9 +100,9 @@ class Map:
         # dummy_entry = Entry(key, None) # Feel free to remove me...
         key_hash = self._get_hash(key)
         if self.map[key_hash] is not None:
-            for pair in self.map[key_hash]:
-                if pair[0] == key:  # 这里可以直接使用 key，因为它不是 Entry 对象
-                    return pair[1]
+            for entry in self.map[key_hash]:
+                if entry.get_key() == key:  # 使用 Entry 对象的方法获取键
+                    return entry.get_value()  # 返回 Entry 对象的值
         return None
 
 
