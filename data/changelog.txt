@@ -1,0 +1,6 @@
+v1.0:
+ - Initial release
+
+v1.1:
+ - Fixed a few bugs in graphs (such as some graphs being directed when it was not intended) - thanks to the student who picked this up
+ 
