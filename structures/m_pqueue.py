@@ -11,51 +11,51 @@ from structures.m_entry import *
 
 
 class PriorityQueue:
-
     def __init__(self):
-        self._queue = [None] * 10  # 初始化时手动分配空间
-        self._size = 0  # 追踪当前队列中的元素数量
+        self._queue = [None]  # 二叉堆的根在索引 1，不是 0
+        self._size = 0
 
-    def _resize(self):
-        temp = [None] * (2 * self._size)
-        for i in range(self._size):
-            temp[i] = self._queue[i]
-        self._queue = temp
+    def _swim(self, k):
+        while k > 1 and self._queue[k // 2].get_key() > self._queue[k].get_key():
+            self._queue[k], self._queue[k // 2] = self._queue[k // 2], self._queue[k]
+            k = k // 2
+
+    def _sink(self, k):
+        while 2 * k <= self._size:
+            j = 2 * k
+            if j < self._size and self._queue[j].get_key() > self._queue[j + 1].get_key():
+                j += 1
+            if not self._queue[k].get_key() > self._queue[j].get_key():
+                break
+            self._queue[k], self._queue[j] = self._queue[j], self._queue[k]
+            k = j
 
     def insert(self, priority: int, data: Any) -> None:
-        if self._size == len(self._queue):  # 如果数组已满，需要扩展数组
-            self._resize()
         entry = Entry(priority, data)
-        i = self._size - 1
-        while i >= 0 and self._queue[i].get_key() > priority:
-            i -= 1
-        for j in range(self._size, i + 1, -1):
-            self._queue[j] = self._queue[j - 1]
-        self._queue[i + 1] = entry
+        self._queue.append(entry)  # 直接在列表末尾添加新元素
         self._size += 1
+        self._swim(self._size)  # 将新元素上浮到合适的位置
 
     def insert_fifo(self, data: Any) -> None:
-        if not self._size:
+        if self.is_empty():
             self.insert(0, data)
         else:
-            self.insert(self._queue[self._size - 1].get_key(), data)
+            self.insert(self._queue[-1].get_key(), data)
 
     def get_min(self) -> Any:
-        if not self.is_empty():
-            return self._queue[0].get_value()
-        else:
+        if self.is_empty():
             return None
+        return self._queue[1].get_value()
 
     def remove_min(self) -> Any:
-        if not self.is_empty():
-            min_value = self._queue[0].get_value()
-            for i in range(self._size - 1):
-                self._queue[i] = self._queue[i + 1]
-            self._queue[self._size - 1] = None
-            self._size -= 1
-            return min_value
-        else:
+        if self.is_empty():
             return None
+        min_val = self._queue[1].get_value()
+        self._queue[1], self._queue[self._size] = self._queue[self._size], self._queue[1]
+        self._queue.pop()  # 删除最后一个元素
+        self._size -= 1
+        self._sink(1)  # 将根元素下沉到合适的位置
+        return min_val
 
     def get_size(self) -> int:
         return self._size
@@ -63,22 +63,27 @@ class PriorityQueue:
     def is_empty(self) -> bool:
         return self._size == 0
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     import random
 
-    input_list = list(range(1, 100001))  # Create a list of integers from 1 to 100000
-    random.shuffle(input_list)  # Shuffle the list
+    input_list = list(range(1, 100001))  # 创建一个从1到100000的整数列表
+    random.shuffle(input_list)  # 打乱列表
+
     pq = PriorityQueue()
+
     for num in input_list:
-        pq.insert(num, num)  # Here, we are using the integers themselves as both the data and the priority
+        pq.insert(num, num)  # 在这里，我们使用整数本身作为数据和优先级
+
     output_list = []
+
     while not pq.is_empty():
         output_list.append(pq.remove_min())
-    if output_list == sorted(output_list):
+
+    if output_list == sorted(input_list):
         print("Test passed: The output list is sorted.")
     else:
         print("Test failed: The output list is not sorted. Investigate the issue.")
-
 
 
 
