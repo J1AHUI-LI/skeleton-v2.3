@@ -99,30 +99,16 @@ def bfs_traversal(
 def greedy_traversal(
     graph: LatticeGraph, origin: int, goal: int
 ) -> tuple[ExtensibleList, ExtensibleList] | tuple[TraversalFailure, ExtensibleList]:
-    """
-    Task 2.2: Greedy Traversal
-
-    @param: graph
-      The lattice graph to process
-    @param: origin
-      The ID of the node from which to start traversal
-    @param: goal
-      The ID of the target node
-
-    @returns: tuple[ExtensibleList, ExtensibleList]
-      1. The ordered path between the origin and the goal in node IDs;
-      2. The IDs of all nodes in the order they were visited.
-    @returns: tuple[TraversalFailure, ExtensibleList]
-      1. TraversalFailure signals that the path between the origin and the target can not be found;
-      2. The IDs of all nodes in the order they were visited.
-    """
     visited_order = ExtensibleList()
     path = ExtensibleList()
     queue = PriorityQueue()
-    visited = [False] * len(graph._nodes)
+    visited = [False] * len(graph._nodes)  # Use a boolean list to track visited nodes
     predecessors = {origin: None}
 
-    queue.insert(origin, 0)  # Start with origin and priority 0
+    goal_coordinates = graph.get_node(goal).get_coordinates()
+
+    # Insert the origin with distance 0
+    queue.insert(origin, 0)
 
     while not queue.is_empty():
         current = queue.remove_min()
@@ -144,19 +130,19 @@ def greedy_traversal(
 
                 return (path, visited_order)
 
-            neighbors = graph.get_neighbours(current)
+            neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
+            current_coordinates = graph.get_node(current).get_coordinates()
             for neighbor in neighbors:
-                neighbor_id = neighbor.get_id()
-                if not visited[neighbor_id]:
-                    # Use distance as priority for the queue
-                    x1, y1 = neighbor.get_coordinates()
-                    x2, y2 = graph.get_node(goal).get_coordinates()
-                    dist = distance(x1, y1, x2, y2)
-                    queue.insert(neighbor_id, dist)
-                    if neighbor_id not in predecessors:
-                        predecessors[neighbor_id] = current
+                if not visited[neighbor]:
+                    # Calculate the distance to the goal and use it as the priority
+                    neighbor_coordinates = graph.get_node(neighbor).get_coordinates()
+                    dist = distance(neighbor_coordinates[0], neighbor_coordinates[1], goal_coordinates[0], goal_coordinates[1])
+                    queue.insert(neighbor, dist)
+                    if neighbor not in predecessors:
+                        predecessors[neighbor] = current
 
     return (TraversalFailure.DISCONNECTED, visited_order)
+
 
 
 def distance(x_1: float, y_1: float, x_2: float, y_2: float) -> float:
