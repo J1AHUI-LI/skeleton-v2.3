@@ -20,7 +20,7 @@ def dfs_traversal(
     visited_order = ExtensibleList()
     path = ExtensibleList()
     stack = Stack()
-    visited = ExtensibleList()  # Use ExtensibleList instead of set
+    visited = [False] * len(graph._nodes)  # Use a boolean list to track visited nodes
     predecessors = {origin: None}
 
     stack.push(origin)
@@ -28,8 +28,8 @@ def dfs_traversal(
     while not stack.is_empty():
         current = stack.pop()
 
-        if current not in visited:  # This check is O(n) now
-            visited.append(current)
+        if not visited[current]:
+            visited[current] = True
             visited_order.append(current)
 
             if current == goal:
@@ -38,19 +38,22 @@ def dfs_traversal(
                     current = predecessors[current]
 
                 # Manually reverse the path
-                for i in range(len(path) // 2):
-                    path[i], path[-i - 1] = path[-i - 1], path[i]
+                reversed_path = ExtensibleList()
+                for i in range(path.get_size() - 1, -1, -1):
+                    reversed_path.append(path[i])
+                path = reversed_path
 
                 return (path, visited_order)
 
             neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
             for neighbor in neighbors:
-                if neighbor not in visited:  # This check is O(n) now
+                if not visited[neighbor]:
                     stack.push(neighbor)
                     if neighbor not in predecessors:
                         predecessors[neighbor] = current
 
     return (TraversalFailure.DISCONNECTED, visited_order)
+
 
 def bfs_traversal(
     graph: Graph | LatticeGraph, origin: int, goal: int
@@ -58,15 +61,15 @@ def bfs_traversal(
     visited_order = ExtensibleList()
     path = ExtensibleList()
     queue = PriorityQueue()
-    visited = ExtensibleList()  # Use ExtensibleList instead of set
+    visited = [False] * len(graph._nodes)  # Use a boolean list to track visited nodes
 
     queue.insert_fifo(origin)
 
     while not queue.is_empty():
         current = queue.remove_min()
 
-        if current not in visited:  # This check is O(n) now
-            visited.append(current)
+        if not visited[current]:
+            visited[current] = True
             visited_order.append(current)
 
             if current == goal:
@@ -75,7 +78,7 @@ def bfs_traversal(
 
             neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
             for neighbor in neighbors:
-                if neighbor not in visited:  # This check is O(n) now
+                if not visited[neighbor]:
                     queue.insert_fifo(neighbor)
 
     return TraversalFailure.DISCONNECTED, visited_order
