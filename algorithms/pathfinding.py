@@ -96,25 +96,32 @@ def bfs_traversal(
     return (TraversalFailure.DISCONNECTED, visited_order)
 
 
+def is_in_extensible_list(elem, ext_list):
+    for i in range(ext_list.get_size()):
+        if ext_list[i] == elem:
+            return True
+    return False
+
+
 def greedy_traversal(
     graph: LatticeGraph, origin: int, goal: int
 ) -> tuple[ExtensibleList, ExtensibleList] | tuple[TraversalFailure, ExtensibleList]:
     visited_order = ExtensibleList()
     path = ExtensibleList()
     queue = PriorityQueue()
-    visited = [False] * len(graph._nodes)  # Use a boolean list to track visited nodes
+    visited = ExtensibleList()
     predecessors = {origin: None}
 
     goal_coordinates = graph.get_node(goal).get_coordinates()
 
     # Insert the origin with distance 0
-    queue.insert(origin, 0)
+    queue.insert(0, origin)
 
     while not queue.is_empty():
         current = queue.remove_min()
 
-        if not visited[current]:
-            visited[current] = True
+        if not is_in_extensible_list(current, visited):
+            visited.append(current)
             visited_order.append(current)
 
             if current == goal:
@@ -133,11 +140,11 @@ def greedy_traversal(
             neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
             current_coordinates = graph.get_node(current).get_coordinates()
             for neighbor in neighbors:
-                if not visited[neighbor]:
+                if not is_in_extensible_list(neighbor, visited):
                     # Calculate the distance to the goal and use it as the priority
                     neighbor_coordinates = graph.get_node(neighbor).get_coordinates()
-                    dist = distance(neighbor_coordinates[0], neighbor_coordinates[1], goal_coordinates[0], goal_coordinates[1])
-                    queue.insert(neighbor, dist)
+                    dist = abs(neighbor_coordinates[0] - goal_coordinates[0]) + abs(neighbor_coordinates[1] - goal_coordinates[1])
+                    queue.insert(dist, neighbor)
                     if neighbor not in predecessors:
                         predecessors[neighbor] = current
 
@@ -155,7 +162,7 @@ def distance(x_1: float, y_1: float, x_2: float, y_2: float) -> float:
 
 
 def max_traversal(
-    graph: LatticeGraph, origin: int, goal: int
+        graph: LatticeGraph, origin: int, goal: int
 ) -> tuple[ExtensibleList, ExtensibleList] | tuple[TraversalFailure, ExtensibleList]:
     """
     Task 2.3: Maximize vertex visits traversal
