@@ -68,7 +68,7 @@ def bfs_traversal(
                 if neighbor not in visited:
                     queue.insert_fifo(neighbor)
 
-    return 1, visited_order
+    return 1, 0
 
 
 def greedy_traversal(
