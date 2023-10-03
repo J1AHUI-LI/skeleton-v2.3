@@ -116,7 +116,47 @@ def greedy_traversal(
       1. TraversalFailure signals that the path between the origin and the target can not be found;
       2. The IDs of all nodes in the order they were visited.
     """
-    pass
+    visited_order = ExtensibleList()
+    path = ExtensibleList()
+    queue = PriorityQueue()
+    visited = [False] * len(graph._nodes)
+    predecessors = {origin: None}
+
+    queue.insert(origin, 0)  # Start with origin and priority 0
+
+    while not queue.is_empty():
+        current = queue.remove_min()
+
+        if not visited[current]:
+            visited[current] = True
+            visited_order.append(current)
+
+            if current == goal:
+                while current is not None:
+                    path.append(current)
+                    current = predecessors[current]
+
+                # Manually reverse the path
+                reversed_path = ExtensibleList()
+                for i in range(path.get_size() - 1, -1, -1):
+                    reversed_path.append(path[i])
+                path = reversed_path
+
+                return (path, visited_order)
+
+            neighbors = graph.get_neighbours(current)
+            for neighbor in neighbors:
+                neighbor_id = neighbor.get_id()
+                if not visited[neighbor_id]:
+                    # Use distance as priority for the queue
+                    x1, y1 = neighbor.get_coordinates()
+                    x2, y2 = graph.get_node(goal).get_coordinates()
+                    dist = distance(x1, y1, x2, y2)
+                    queue.insert(neighbor_id, dist)
+                    if neighbor_id not in predecessors:
+                        predecessors[neighbor_id] = current
+
+    return (TraversalFailure.DISCONNECTED, visited_order)
 
 
 def distance(x_1: float, y_1: float, x_2: float, y_2: float) -> float:
@@ -125,7 +165,7 @@ def distance(x_1: float, y_1: float, x_2: float, y_2: float) -> float:
     at coordinate (x_2, y_2). You may re-write this method with other
     parameters if you wish. Please comment on your choice of distance function.
     """
-    pass
+    return abs(x_2 - x_1) + abs(y_2 - y_1)
 
 
 def max_traversal(
