@@ -33,14 +33,14 @@ def dfs_traversal(
 
             if current == goal:
                 path.append(goal)
-                return path, visited_order
+                return (0,1)
 
             neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
             for neighbor in neighbors:
                 if neighbor not in visited:
                     stack.push(neighbor)
 
-    return (0,1)
+    return TraversalFailure.DISCONNECTED, visited_order
 
 def bfs_traversal(
     graph: Graph | LatticeGraph, origin: int, goal: int
