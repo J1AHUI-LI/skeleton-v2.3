@@ -40,7 +40,7 @@ def dfs_traversal(
                 if neighbor not in visited:
                     stack.push(neighbor)
 
-    return (TraversalFailure.DISCONNECTED, visited_order)
+    return TraversalFailure.DISCONNECTED, visited_order
 
 def bfs_traversal(
     graph: Graph | LatticeGraph, origin: int, goal: int
