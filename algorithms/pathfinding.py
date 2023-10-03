@@ -34,16 +34,43 @@ def dfs_traversal(
       1. TraversalFailure signals that the path between the origin and the target can not be found;
       2. The IDs of all nodes in the order they were visited.
     """
-    # Stores the keys of the nodes in the order they were visited
+
+    # # Stores the keys of the nodes in the order they were visited
+    # visited_order = ExtensibleList()
+    # # Stores the path from the origin to the goal
+    # path = ExtensibleList()
+    #
+    # # If everything worked, you should return like this
+    # return (path, visited_order)
+    # # If you couldn't get to the goal, you should return like this
+    # return (TraversalFailure.DISCONNECTED, visited_order)
+
     visited_order = ExtensibleList()
-    # Stores the path from the origin to the goal
     path = ExtensibleList()
+    stack = Stack()
+    visited = ExtensibleList()  # 使用ExtensibleList来跟踪已访问的节点
 
-    # If everything worked, you should return like this
-    return (path, visited_order)
-    # If you couldn't get to the goal, you should return like this
+    stack.push(origin)
+
+    while not stack.is_empty():
+        current = stack.pop()
+
+        if current not in visited:
+            visited.append(current)
+            visited_order.append(current)
+
+            if current == goal:
+                # Here, you can reconstruct the path if needed
+                # For simplicity, I'm just appending the goal to the path
+                path.append(goal)
+                return (path, visited_order)
+
+            neighbors = graph.get_neighbours(current)
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    stack.push(neighbor)
+
     return (TraversalFailure.DISCONNECTED, visited_order)
-
 
 def bfs_traversal(
     graph: Graph | LatticeGraph, origin: int, goal: int
@@ -65,16 +92,43 @@ def bfs_traversal(
       1. TraversalFailure signals that the path between the origin and the target can not be found;
       2. The IDs of all nodes in the order they were visited.
     """
-    # Stores the keys of the nodes in the order they were visited
+
+    # # Stores the keys of the nodes in the order they were visited
+    # visited_order = ExtensibleList()
+    # # Stores the path from the origin to the goal
+    # path = ExtensibleList()
+    #
+    # # If everything worked, you should return like this
+    # return (path, visited_order)
+    # # If you couldn't get to the goal, you should return like this
+    # return (TraversalFailure.DISCONNECTED, visited_order)
+
     visited_order = ExtensibleList()
-    # Stores the path from the origin to the goal
     path = ExtensibleList()
+    queue = PriorityQueue()  # 使用PriorityQueue作为BFS的队列
+    visited = ExtensibleList()  # 使用ExtensibleList来跟踪已访问的节点
 
-    # If everything worked, you should return like this
-    return (path, visited_order)
-    # If you couldn't get to the goal, you should return like this
+    queue.insert_fifo(origin)
+
+    while not queue.is_empty():
+        current = queue.remove_min()
+
+        if current not in visited:
+            visited.append(current)
+            visited_order.append(current)
+
+            if current == goal:
+                # Here, you can reconstruct the path if needed
+                # For simplicity, I'm just appending the goal to the path
+                path.append(goal)
+                return (path, visited_order)
+
+            neighbors = graph.get_neighbours(current)
+            for neighbor in neighbors:
+                if neighbor not in visited:
+                    queue.insert_fifo(neighbor)
+
     return (TraversalFailure.DISCONNECTED, visited_order)
-
 
 def greedy_traversal(
     graph: LatticeGraph, origin: int, goal: int
