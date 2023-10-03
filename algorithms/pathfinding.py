@@ -33,7 +33,7 @@ def dfs_traversal(
 
             if current == goal:
                 path.append(goal)
-                return (path, visited_order)
+                return path, visited_order
 
             neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
             for neighbor in neighbors:
@@ -61,14 +61,14 @@ def bfs_traversal(
 
             if current == goal:
                 path.append(goal)
-                return (path, visited_order)
+                return path, visited_order
 
             neighbors = graph.get_neighbours(current)
             for neighbor in neighbors:
                 if neighbor not in visited:
                     queue.insert_fifo(neighbor)
 
-    return (TraversalFailure.DISCONNECTED, visited_order)
+    return 1, visited_order
 
 
 def greedy_traversal(
