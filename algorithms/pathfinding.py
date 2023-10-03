@@ -33,7 +33,8 @@ def dfs_traversal(
 
             if current == goal:
                 path.append(goal)
-                return visited_order
+
+                return path
 
             neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
             for neighbor in neighbors:
