@@ -17,38 +17,10 @@ from structures.m_util import Hashable, TraversalFailure
 def dfs_traversal(
     graph: Graph | LatticeGraph, origin: int, goal: int
 ) -> tuple[ExtensibleList, ExtensibleList] | tuple[TraversalFailure, ExtensibleList]:
-    """
-    Task 2.1: Depth First Search
-
-    @param: graph
-      The general graph or lattice graph to process
-    @param: origin
-      The ID of the node from which to start traversal
-    @param: goal
-      The ID of the target node
-
-    @returns: tuple[ExtensibleList, ExtensibleList]
-      1. The ordered path between the origin and the goal in node IDs;
-      2. The IDs of all nodes in the order they were visited.
-    @returns: tuple[TraversalFailure, ExtensibleList]
-      1. TraversalFailure signals that the path between the origin and the target can not be found;
-      2. The IDs of all nodes in the order they were visited.
-    """
-
-    # # Stores the keys of the nodes in the order they were visited
-    # visited_order = ExtensibleList()
-    # # Stores the path from the origin to the goal
-    # path = ExtensibleList()
-    #
-    # # If everything worked, you should return like this
-    # return (path, visited_order)
-    # # If you couldn't get to the goal, you should return like this
-    # return (TraversalFailure.DISCONNECTED, visited_order)
-
     visited_order = ExtensibleList()
     path = ExtensibleList()
     stack = Stack()
-    visited = ExtensibleList()  # 使用ExtensibleList来跟踪已访问的节点
+    visited = set()
 
     stack.push(origin)
 
@@ -56,16 +28,14 @@ def dfs_traversal(
         current = stack.pop()
 
         if current not in visited:
-            visited.append(current)
+            visited.add(current)
             visited_order.append(current)
 
             if current == goal:
-                # Here, you can reconstruct the path if needed
-                # For simplicity, I'm just appending the goal to the path
                 path.append(goal)
                 return (path, visited_order)
 
-            neighbors = graph.get_neighbours(current)
+            neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
             for neighbor in neighbors:
                 if neighbor not in visited:
                     stack.push(neighbor)
@@ -75,38 +45,10 @@ def dfs_traversal(
 def bfs_traversal(
     graph: Graph | LatticeGraph, origin: int, goal: int
 ) -> tuple[ExtensibleList, ExtensibleList] | tuple[TraversalFailure, ExtensibleList]:
-    """
-    Task 2.1: Breadth First Search
-
-    @param: graph
-      The general graph or lattice graph to process
-    @param: origin
-      The ID of the node from which to start traversal
-    @param: goal
-      The ID of the target node
-
-    @returns: tuple[ExtensibleList, ExtensibleList]
-      1. The ordered path between the origin and the goal in node IDs;
-      2. The IDs of all nodes in the order they were visited.
-    @returns: tuple[TraversalFailure, ExtensibleList]
-      1. TraversalFailure signals that the path between the origin and the target can not be found;
-      2. The IDs of all nodes in the order they were visited.
-    """
-
-    # # Stores the keys of the nodes in the order they were visited
-    # visited_order = ExtensibleList()
-    # # Stores the path from the origin to the goal
-    # path = ExtensibleList()
-    #
-    # # If everything worked, you should return like this
-    # return (path, visited_order)
-    # # If you couldn't get to the goal, you should return like this
-    # return (TraversalFailure.DISCONNECTED, visited_order)
-
     visited_order = ExtensibleList()
     path = ExtensibleList()
-    queue = PriorityQueue()  # 使用PriorityQueue作为BFS的队列
-    visited = ExtensibleList()  # 使用ExtensibleList来跟踪已访问的节点
+    queue = PriorityQueue()
+    visited = set()
 
     queue.insert_fifo(origin)
 
@@ -114,12 +56,10 @@ def bfs_traversal(
         current = queue.remove_min()
 
         if current not in visited:
-            visited.append(current)
+            visited.add(current)
             visited_order.append(current)
 
             if current == goal:
-                # Here, you can reconstruct the path if needed
-                # For simplicity, I'm just appending the goal to the path
                 path.append(goal)
                 return (path, visited_order)
 
@@ -129,6 +69,7 @@ def bfs_traversal(
                     queue.insert_fifo(neighbor)
 
     return (TraversalFailure.DISCONNECTED, visited_order)
+
 
 def greedy_traversal(
     graph: LatticeGraph, origin: int, goal: int
