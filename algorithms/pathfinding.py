@@ -56,12 +56,13 @@ def dfs_traversal(
 
 
 def bfs_traversal(
-    graph: Graph | LatticeGraph, origin: int, goal: int
+        graph: Graph | LatticeGraph, origin: int, goal: int
 ) -> tuple[ExtensibleList, ExtensibleList] | tuple[TraversalFailure, ExtensibleList]:
     visited_order = ExtensibleList()
     path = ExtensibleList()
     queue = PriorityQueue()
     visited = [False] * len(graph._nodes)  # Use a boolean list to track visited nodes
+    predecessors = {origin: None}  # Dictionary to track the predecessor of each node
 
     queue.insert_fifo(origin)
 
@@ -73,18 +74,26 @@ def bfs_traversal(
             visited_order.append(current)
 
             if current == goal:
-                path.append(goal)
-                return path, visited_order
+                # Reconstruct the path from goal to origin using the predecessors dictionary
+                while current is not None:
+                    path.append(current)
+                    current = predecessors[current]
+
+                # Manually reverse the path to get the correct order
+                reversed_path = ExtensibleList()
+                for i in range(path.get_size() - 1, -1, -1):
+                    reversed_path.append(path[i])
+                return reversed_path, visited_order
 
             neighbors = graph.get_neighbours(current)
             for neighbor_node in neighbors:
                 neighbor = neighbor_node.get_id()
                 if not visited[neighbor]:
                     queue.insert_fifo(neighbor)
+                    if neighbor not in predecessors:
+                        predecessors[neighbor] = current
 
-    return TraversalFailure.DISCONNECTED, visited_order
-
-
+    return TraversalFailure.DISCONNECT, visited_order
 
 
 def greedy_traversal(
