@@ -15,33 +15,42 @@ from structures.m_util import Hashable, TraversalFailure
 
 
 def dfs_traversal(
-    graph: Graph | LatticeGraph, origin: int, goal: int
+        graph: Graph | LatticeGraph, origin: int, goal: int
 ) -> tuple[ExtensibleList, ExtensibleList] | tuple[TraversalFailure, ExtensibleList]:
     visited_order = ExtensibleList()
     path = ExtensibleList()
     stack = Stack()
-    visited = set()
+    visited = ExtensibleList()  # Use ExtensibleList instead of set
+    predecessors = {origin: None}
 
     stack.push(origin)
 
     while not stack.is_empty():
         current = stack.pop()
 
-        if current not in visited:
-            visited.add(current)
+        if current not in visited:  # This check is O(n) now
+            visited.append(current)
             visited_order.append(current)
 
             if current == goal:
-                path.append(goal)
+                while current is not None:
+                    path.append(current)
+                    current = predecessors[current]
 
-                return path
+                # Manually reverse the path
+                for i in range(len(path) // 2):
+                    path[i], path[-i - 1] = path[-i - 1], path[i]
+
+                return (path, visited_order)
 
             neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
             for neighbor in neighbors:
-                if neighbor not in visited:
+                if neighbor not in visited:  # This check is O(n) now
                     stack.push(neighbor)
+                    if neighbor not in predecessors:
+                        predecessors[neighbor] = current
 
-    return TraversalFailure.DISCONNECTED, visited_order
+    return (TraversalFailure.DISCONNECTED, visited_order)
 
 def bfs_traversal(
     graph: Graph | LatticeGraph, origin: int, goal: int
@@ -49,27 +58,28 @@ def bfs_traversal(
     visited_order = ExtensibleList()
     path = ExtensibleList()
     queue = PriorityQueue()
-    visited = set()
+    visited = ExtensibleList()  # Use ExtensibleList instead of set
 
     queue.insert_fifo(origin)
 
     while not queue.is_empty():
         current = queue.remove_min()
 
-        if current not in visited:
-            visited.add(current)
+        if current not in visited:  # This check is O(n) now
+            visited.append(current)
             visited_order.append(current)
 
             if current == goal:
                 path.append(goal)
                 return path, visited_order
 
-            neighbors = graph.get_neighbours(current)
+            neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
             for neighbor in neighbors:
-                if neighbor not in visited:
+                if neighbor not in visited:  # This check is O(n) now
                     queue.insert_fifo(neighbor)
 
     return TraversalFailure.DISCONNECTED, visited_order
+
 
 
 def greedy_traversal(
