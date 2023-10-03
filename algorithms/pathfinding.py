@@ -76,12 +76,14 @@ def bfs_traversal(
                 path.append(goal)
                 return path, visited_order
 
-            neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
-            for neighbor in neighbors:
+            neighbors = graph.get_neighbours(current)
+            for neighbor_node in neighbors:
+                neighbor = neighbor_node.get_id()
                 if not visited[neighbor]:
                     queue.insert_fifo(neighbor)
 
     return TraversalFailure.DISCONNECTED, visited_order
+
 
 
 
