@@ -64,12 +64,12 @@ class PriorityQueue:
     def remove_min(self) -> Any:
         if self.is_empty():
             return None
-        min_val = (self._queue[1].get_key(), self._queue[1].get_value())
+        min_entry = self._queue[1]
         self._queue[1], self._queue[self._size] = self._queue[self._size], self._queue[1]
         self._queue.pop()
         self._size -= 1
         self._sink(1)
-        return min_val
+        return min_entry.get_key(), min_entry.get_value()
 
     def get_size(self) -> int:
         return self._size
