@@ -52,9 +52,9 @@ class PriorityQueue:
             return None
         min_val = self._queue[1].get_value()
         self._queue[1], self._queue[self._size] = self._queue[self._size], self._queue[1]
-        self._queue.pop()  # 删除最后一个元素
+        self._queue.pop()
         self._size -= 1
-        self._sink(1)  # 将根元素下沉到合适的位置
+        self._sink(1)
         return min_val
 
     def get_size(self) -> int:

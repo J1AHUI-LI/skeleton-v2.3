@@ -15,55 +15,103 @@ from structures.m_util import Hashable, TraversalFailure
 
 
 def has_cycles(graph: Graph) -> bool:
-    """
-    Task 3.1: Cycle detection
+    visited = [False] * len(graph._nodes)
+    predecessors = [-1] * len(graph._nodes)
 
-    @param: graph
-      The general graph to process
+    def dfs(node, parent):
+        visited[node] = True
+        predecessors[node] = parent
 
-    @returns: bool
-      Whether or not the graph contains cycles
-    """
+        neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(node)]
+        for neighbor in neighbors:
+            if not visited[neighbor]:
+                if dfs(neighbor, node):
+                    return True
+            elif predecessors[node] != neighbor:
+                return True
 
-    pass
+        return False
+
+    for i in range(len(graph._nodes)):
+        if not visited[i]:
+            if dfs(i, -1):
+                return True
+
+    return False
+
 
 
 def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
-    """
-    Task 3.2: Hub enumeration
+    nodes_to_remove = ExtensibleList()
 
-    @param: graph
-      The general graph to process
-    @param: min_degree
-      the lowest degree a vertex can have to be considered a hub
+    # Step 1: Calculate the degree of each node
+    degrees = [len(graph.get_neighbours(node.get_id())) for node in graph._nodes]
 
-    @returns: ExtensibleList
-      A list of all Node IDs corresponding to the largest subgraph
-      where each vertex has a degree of at least min_degree.
-    """
+    while True:
+        nodes_to_remove.clear()
 
-    pass
+        # Step 2: Find nodes with degree less than min_degree
+        for i, degree in enumerate(degrees):
+            if degree < min_degree:
+                nodes_to_remove.append(i)
+
+        # If no nodes to remove, break
+        if nodes_to_remove.get_size() == 0:
+            break
+
+        # Remove nodes and update degrees
+        for node_id in nodes_to_remove:
+            neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(node_id)]
+            for neighbor in neighbors:
+                degrees[neighbor] -= 1
+            degrees[node_id] = 0
+
+    hubs = ExtensibleList()
+    for i, degree in enumerate(degrees):
+        if degree >= min_degree:
+            hubs.append(i)
+
+    return hubs
 
 
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-    """
-    Task 3.3: Big Bogan Budget Bonanza
+    # Initialize distances and stopovers with infinity and -1 respectively
+    distances = [float('inf')] * len(graph._nodes)
+    stopovers = [-1] * len(graph._nodes)
+    distances[origin] = 0
+    stopovers[origin] = 0
 
-    @param: graph
-      The general graph to process
-    @param: origin
-      The origin from where the passenger wishes to fly
-    @param: stopover_budget
-      The maximum number of stopovers the passenger is willing to make
-    @param: monetary_budget
-      The maximum amount of money the passenger is willing to spend
+    # Priority queue: (cost, stopovers, node_id)
+    queue = PriorityQueue()
+    queue.insert(0, (0, origin))
 
-    @returns: ExtensibleList
-      The sorted list of viable destinations satisfying stopover and budget constraints.
-      Each element of the ExtensibleList should be of type Destination - see
-      m_entry.py for the definition of that type.
-    """
-    pass
+    while not queue.is_empty():
+        current_cost, current_node = queue.remove_min()
+        current_stopover = stopovers[current_node]
+
+        # If we've already processed a better path to this node, skip
+        if current_cost > distances[current_node]:
+            continue
+
+        for neighbour in graph.get_neighbours(current_node):
+            neighbour_id = neighbour.get_id()
+            edge_cost = neighbour.get_weight()
+
+            # If we can reach the neighbour with fewer stopovers and cost, update
+            if current_stopover + 1 <= stopover_budget and current_cost + edge_cost < distances[neighbour_id]:
+                distances[neighbour_id] = current_cost + edge_cost
+                stopovers[neighbour_id] = current_stopover + 1
+                queue.insert(distances[neighbour_id], (distances[neighbour_id], neighbour_id))
+
+    # Filter destinations based on monetary budget and sort them
+    destinations = ExtensibleList()
+    for i, cost in enumerate(distances):
+        if cost <= monetary_budget:
+            destinations.append((i, cost, stopovers[i]))
+
+    destinations.sort(key=lambda x: (x[1], x[2], x[0]))
+
+    return destinations
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
@@ -80,7 +128,43 @@ def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
       Please use the Entry type here, with the key being the node identifier,
       and the value being the cost.
     """
-    pass
+
+    # Step 1: Initialization
+    num_nodes = len(graph._nodes)
+    distances = [float('inf')] * num_nodes
+    visited = [False] * num_nodes
+    distances[origin] = 0
+
+    queue = PriorityQueue()
+    queue.insert(0, origin)  # The distance to the origin is 0
+
+    # Step 2: Dijkstra's Algorithm
+    while not queue.is_empty():
+        current_distance, current_node = queue.remove_min()
+
+        # If the node was already visited, continue
+        if visited[current_node]:
+            continue
+
+        visited[current_node] = True
+
+        for neighbour in graph.get_neighbours(current_node):
+            neighbour_id = neighbour.get_id()
+            edge_weight = graph.get_edge(current_node, neighbour_id).get_weight()
+
+            # Check if the new path to the neighbour is shorter
+            if distances[current_node] + edge_weight < distances[neighbour_id]:
+                distances[neighbour_id] = distances[current_node] + edge_weight
+                queue.insert(distances[neighbour_id], neighbour_id)
+
+    # Step 3: Result Compilation
+    result = ExtensibleList()
+    for i in range(num_nodes):
+        if distances[i] != float('inf') and i != origin:  # Exclude unreachable nodes and the origin
+            result.append(Entry(i, distances[i]))
+
+    # Return the result
+    return result
 
 
 def all_city_logistics(graph: Graph) -> Map:
