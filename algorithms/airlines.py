@@ -123,38 +123,48 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
       Each element of the ExtensibleList should be of type Destination - see
       m_entry.py for the definition of that type.
     """
-    from structures.m_entry import Destination
-
     visited = [False] * len(graph._nodes)
-    result_list = []  # Use a standard Python list for easier sorting
-    # Each queue item contains node index, cost to reach that node, and number of stopovers
-    queue = [(origin, 0, 0)]
+    costs = [float('inf')] * len(graph._nodes)
+    stopovers = [float('inf')] * len(graph._nodes)
+    queue = PriorityQueue()
+    destinations = ExtensibleList()
 
-    while queue:
-        current, current_cost, stopovers = queue.pop(0)
+    # Initialize the origin node with 0 cost and 0 stopovers
+    costs[origin] = 0
+    stopovers[origin] = 0
+    queue.insert(0, origin)  # The priority is the total cost
 
-        if visited[current]:
-            continue
+    while not queue.is_empty():
+        current_cost, current = queue.remove_min()
 
-        visited[current] = True
-        if current != origin:  # We don't want to add the origin to the destinations
-            result_list.append(Destination(current, current_cost, stopovers))
+        if not visited[current]:
+            visited[current] = True
 
-        if stopovers >= stopover_budget:  # If we have already reached the maximum number of stopovers, we skip further exploration
-            continue
+            for neighbour, weight in graph.get_neighbours(current):
+                total_cost = current_cost + weight
+                new_stopover = stopovers[current] + 1
 
-        for neighbour_node, weight in graph.get_neighbours(current):
-            neighbour = neighbour_node.get_id()  # Get the ID of the neighbour node
-            total_cost = current_cost + weight
-            if not visited[neighbour] and total_cost <= monetary_budget:
-                queue.append((neighbour, total_cost, stopovers + 1))
+                if total_cost <= monetary_budget and new_stopover <= stopover_budget:
+                    if total_cost < costs[neighbour]:
+                        costs[neighbour] = total_cost
+                        stopovers[neighbour] = new_stopover
+                        queue.insert(total_cost, neighbour)
 
-    result_list.sort(key=lambda x: (x.get_stopovers(), x.get_cost()))  # Sort by number of stopovers and then by cost
+    # Collect viable destinations
+    i = 0
+    while i < len(graph._nodes):  # Assuming the graph._nodes acts like a list
+        if i != origin and costs[i] <= monetary_budget and stopovers[i] <= stopover_budget:
+            destinations.append((i, costs[i], stopovers[i]))
+        i += 1
 
-    # Convert the standard Python list back to ExtensibleList
+    # Sorting the results based on stopovers and then by cost
+    destinations = sorted(destinations, key=lambda x: (x[2], x[1]))
+
+    # Create a new ExtensibleList to return the final sorted results
     result = ExtensibleList()
-    for item in result_list:
-        result.append(item)
+    for dest in destinations:
+        # Assuming Destination accepts (node_id, total_cost, number_of_stopovers) as arguments
+        result.append((dest[0], dest[1], dest[2]))
 
     return result
 
