@@ -104,7 +104,6 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
 
     return valid_nodes
 
-
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
     # Initialize distances and stopovers with infinity and -1 respectively
     distances = [float('inf')] * len(graph._nodes)
@@ -124,9 +123,8 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
         if current_cost > distances[current_node]:
             continue
 
-        for neighbour in graph.get_neighbours(current_node):
+        for neighbour, edge_cost in graph.get_neighbours(current_node):  # Unpack the tuple here
             neighbour_id = neighbour.get_id()
-            edge_cost = neighbour.get_weight()
 
             # If we can reach the neighbour with fewer stopovers and cost, update
             if current_stopover + 1 <= stopover_budget and current_cost + edge_cost < distances[neighbour_id]:
@@ -143,6 +141,7 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     destinations.sort(key=lambda x: (x[1], x[2], x[0]))
 
     return destinations
+
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
