@@ -143,7 +143,8 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
         if stopovers >= stopover_budget:  # If we have already reached the maximum number of stopovers, we skip further exploration
             continue
 
-        for neighbour, weight in graph.get_neighbours(current):
+        for neighbour_node, weight in graph.get_neighbours(current):
+            neighbour = neighbour_node.get_id()  # Get the ID of the neighbour node
             total_cost = current_cost + weight
             if not visited[neighbour] and total_cost <= monetary_budget:
                 queue.append((neighbour, total_cost, stopovers + 1))
