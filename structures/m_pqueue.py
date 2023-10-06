@@ -30,11 +30,16 @@ class PriorityQueue:
             self._queue[k], self._queue[j] = self._queue[j], self._queue[k]
             k = j
 
+    # def insert(self, priority: int, data: Any) -> None:
+    #     entry = Entry(priority, data)
+    #     self._queue.append(entry)  # 直接在列表末尾添加新元素
+    #     self._size += 1
+    #     self._swim(self._size)  # 将新元素上浮到合适的位置
     def insert(self, priority: int, data: Any) -> None:
         entry = Entry(priority, data)
-        self._queue.append(entry)  # 直接在列表末尾添加新元素
+        self._queue.append(entry)
         self._size += 1
-        self._swim(self._size)  # 将新元素上浮到合适的位置
+        self._swim(self._size)
 
     def insert_fifo(self, data: Any) -> None:
         if self.is_empty():
@@ -47,10 +52,19 @@ class PriorityQueue:
             return None
         return self._queue[1].get_value()
 
+    # def remove_min(self) -> Any:
+    #     if self.is_empty():
+    #         return None
+    #     min_val = self._queue[1].get_value()
+    #     self._queue[1], self._queue[self._size] = self._queue[self._size], self._queue[1]
+    #     self._queue.pop()
+    #     self._size -= 1
+    #     self._sink(1)
+    #     return min_val
     def remove_min(self) -> Any:
         if self.is_empty():
             return None
-        min_val = self._queue[1].get_value()
+        min_val = (self._queue[1].get_key(), self._queue[1].get_value())
         self._queue[1], self._queue[self._size] = self._queue[self._size], self._queue[1]
         self._queue.pop()
         self._size -= 1
