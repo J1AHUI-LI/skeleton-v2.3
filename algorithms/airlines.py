@@ -126,7 +126,7 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     from structures.m_entry import Destination
 
     visited = [False] * len(graph._nodes)
-    result = ExtensibleList()
+    result_list = []  # Use a standard Python list for easier sorting
     # Each queue item contains node index, cost to reach that node, and number of stopovers
     queue = [(origin, 0, 0)]
 
@@ -138,7 +138,7 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
 
         visited[current] = True
         if current != origin:  # We don't want to add the origin to the destinations
-            result.append(Destination(current, current_cost, stopovers))
+            result_list.append(Destination(current, current_cost, stopovers))
 
         if stopovers >= stopover_budget:  # If we have already reached the maximum number of stopovers, we skip further exploration
             continue
@@ -148,7 +148,13 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
             if not visited[neighbour] and total_cost <= monetary_budget:
                 queue.append((neighbour, total_cost, stopovers + 1))
 
-    result.sort(key=lambda x: (x.get_stopovers(), x.get_cost()))  # Sort by number of stopovers and then by cost
+    result_list.sort(key=lambda x: (x.get_stopovers(), x.get_cost()))  # Sort by number of stopovers and then by cost
+
+    # Convert the standard Python list back to ExtensibleList
+    result = ExtensibleList()
+    for item in result_list:
+        result.append(item)
+
     return result
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
