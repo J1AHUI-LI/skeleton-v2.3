@@ -78,12 +78,15 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
         while i < valid_nodes.get_size():
             node = valid_nodes.get_at(i)
             neighbors = graph.get_neighbours(node)
-            if isinstance(neighbors[0], tuple):
+
+            if neighbors and isinstance(neighbors[0], tuple):
                 neighbors = [neighbour[0] for neighbour in neighbors if
                              is_in_extensible_list(neighbour[0], valid_nodes)]
-            else:
+            elif neighbors:
                 neighbors = [neighbour.get_id() for neighbour in neighbors if
                              is_in_extensible_list(neighbour.get_id(), valid_nodes)]
+            else:
+                neighbors = []
 
             if len(neighbors) < min_degree:
                 nodes_with_low_degree.append(node)
