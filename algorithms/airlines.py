@@ -120,19 +120,16 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
 
     @returns: ExtensibleList
       The sorted list of viable destinations satisfying stopover and budget constraints.
-      Each element of the ExtensibleList should be of type Destination - see
-      m_entry.py for the definition of that type.
     """
-    visited = [False] * len(graph._nodes)
-    costs = [float('inf')] * len(graph._nodes)
-    stopovers = [float('inf')] * len(graph._nodes)
+    # Initial setup
     queue = PriorityQueue()
-    destinations = ExtensibleList()
+    visited = [False] * len(graph._nodes)
+    costs = [float('inf')] * len(graph._nodes)  # Using float('inf') to represent infinity (unreachable)
+    stopovers = [0] * len(graph._nodes)
 
-    # Initialize the origin node with 0 cost and 0 stopovers
+    # Starting from the origin
+    queue.insert(0, origin)
     costs[origin] = 0
-    stopovers[origin] = 0
-    queue.insert(0, origin)  # The priority is the total cost
 
     while not queue.is_empty():
         current_cost, current = queue.remove_min()
@@ -140,33 +137,31 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
         if not visited[current]:
             visited[current] = True
 
-            for neighbour, weight in graph.get_neighbours(current):
-                total_cost = current_cost + weight
-                new_stopover = stopovers[current] + 1
+            for neighbour in graph.get_neighbours(current):
+                neighbour_id = neighbour.get_id()
+                new_cost = current_cost + neighbour.get_weight()
 
-                if total_cost <= monetary_budget and new_stopover <= stopover_budget:
-                    if total_cost < costs[neighbour]:
-                        costs[neighbour] = total_cost
-                        stopovers[neighbour] = new_stopover
-                        queue.insert(total_cost, neighbour)
+                # If the new cost is cheaper and within budget, update it
+                if new_cost < costs[neighbour_id] and new_cost <= monetary_budget:
+                    costs[neighbour_id] = new_cost
+                    stopovers[neighbour_id] = stopovers[current] + 1
+                    queue.insert(new_cost, neighbour_id)
 
-    # Collect viable destinations
-    i = 0
-    while i < len(graph._nodes):  # Assuming the graph._nodes acts like a list
+    destinations = []
+    for i in range(len(graph._nodes)):
         if i != origin and costs[i] <= monetary_budget and stopovers[i] <= stopover_budget:
             destinations.append((i, costs[i], stopovers[i]))
-        i += 1
 
-    # Sorting the results based on stopovers and then by cost
-    destinations = sorted(destinations, key=lambda x: (x[2], x[1]))
+    # Sort the destinations based on the number of stopovers, then by cost
+    destinations.sort(key=lambda x: (x[2], x[1]))
 
-    # Create a new ExtensibleList to return the final sorted results
+    # Convert the sorted list to ExtensibleList
     result = ExtensibleList()
     for dest in destinations:
-        # Assuming Destination accepts (node_id, total_cost, number_of_stopovers) as arguments
-        result.append((dest[0], dest[1], dest[2]))
+        result.append(dest[0])  # Assuming you only want to return the node ID. Adjust as necessary.
 
     return result
+
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
     """
