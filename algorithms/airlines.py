@@ -15,6 +15,15 @@ from structures.m_util import Hashable, TraversalFailure
 
 
 def has_cycles(graph: Graph) -> bool:
+    """
+    Task 3.1: Cycle detection
+
+    @param: graph
+      The general graph to process
+
+    @returns: bool
+      Whether or not the graph contains cycles
+    """
     visited = [False] * len(graph._nodes)
     predecessors = [-1] * len(graph._nodes)
 
@@ -42,36 +51,49 @@ def has_cycles(graph: Graph) -> bool:
 
 
 def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
-    nodes_to_remove = ExtensibleList()
+    def is_in_extensible_list(elem, ext_list):
+        i = 0
+        while i < ext_list.get_size():
+            if ext_list.get_at(i) == elem:
+                return True
+            i += 1
+        return False
 
-    # Step 1: Calculate the degree of each node
-    degrees = [len(graph.get_neighbours(node.get_id())) for node in graph._nodes]
+    def remove_from_extensible_list(elem, ext_list):
+        i = 0
+        while i < ext_list.get_size():
+            if ext_list.get_at(i) == elem:
+                ext_list.remove_at(i)
+                break
+            i += 1
 
+    valid_nodes = ExtensibleList()
+    i = 0
+    while i < len(graph._nodes):
+        valid_nodes.append(i)
+        i += 1
+
+    nodes_with_low_degree = ExtensibleList()
     while True:
-        nodes_to_remove.clear()
+        i = 0
+        while i < valid_nodes.get_size():
+            node = valid_nodes.get_at(i)
+            neighbors = [neighbour[0] for neighbour in graph.get_neighbours(node) if is_in_extensible_list(neighbour[0], valid_nodes)]
+            if len(neighbors) < min_degree:
+                nodes_with_low_degree.append(node)
+            i += 1
 
-        # Step 2: Find nodes with degree less than min_degree
-        for i, degree in enumerate(degrees):
-            if degree < min_degree:
-                nodes_to_remove.append(i)
-
-        # If no nodes to remove, break
-        if nodes_to_remove.get_size() == 0:
+        if nodes_with_low_degree.get_size() == 0:
             break
 
-        # Remove nodes and update degrees
-        for node_id in nodes_to_remove:
-            neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(node_id)]
-            for neighbor in neighbors:
-                degrees[neighbor] -= 1
-            degrees[node_id] = 0
+        i = 0
+        while i < nodes_with_low_degree.get_size():
+            remove_from_extensible_list(nodes_with_low_degree.get_at(i), valid_nodes)
+            i += 1
 
-    hubs = ExtensibleList()
-    for i, degree in enumerate(degrees):
-        if degree >= min_degree:
-            hubs.append(i)
+        nodes_with_low_degree.reset()
 
-    return hubs
+    return valid_nodes
 
 
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
