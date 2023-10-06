@@ -123,7 +123,33 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
       Each element of the ExtensibleList should be of type Destination - see
       m_entry.py for the definition of that type.
     """
-    pass
+    from structures.m_entry import Destination
+
+    visited = [False] * len(graph._nodes)
+    result = ExtensibleList()
+    # Each queue item contains node index, cost to reach that node, and number of stopovers
+    queue = [(origin, 0, 0)]
+
+    while queue:
+        current, current_cost, stopovers = queue.pop(0)
+
+        if visited[current]:
+            continue
+
+        visited[current] = True
+        if current != origin:  # We don't want to add the origin to the destinations
+            result.append(Destination(current, current_cost, stopovers))
+
+        if stopovers >= stopover_budget:  # If we have already reached the maximum number of stopovers, we skip further exploration
+            continue
+
+        for neighbour, weight in graph.get_neighbours(current):
+            total_cost = current_cost + weight
+            if not visited[neighbour] and total_cost <= monetary_budget:
+                queue.append((neighbour, total_cost, stopovers + 1))
+
+    result.sort(key=lambda x: (x.get_stopovers(), x.get_cost()))  # Sort by number of stopovers and then by cost
+    return result
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
     """
