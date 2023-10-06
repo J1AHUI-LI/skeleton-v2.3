@@ -49,7 +49,6 @@ def has_cycles(graph: Graph) -> bool:
     return False
 
 
-
 def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
     def is_in_extensible_list(elem, ext_list):
         i = 0
@@ -78,7 +77,14 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
         i = 0
         while i < valid_nodes.get_size():
             node = valid_nodes.get_at(i)
-            neighbors = [neighbour[0] for neighbour in graph.get_neighbours(node) if is_in_extensible_list(neighbour[0], valid_nodes)]
+            neighbors = graph.get_neighbours(node)
+            if isinstance(neighbors[0], tuple):
+                neighbors = [neighbour[0] for neighbour in neighbors if
+                             is_in_extensible_list(neighbour[0], valid_nodes)]
+            else:
+                neighbors = [neighbour.get_id() for neighbour in neighbors if
+                             is_in_extensible_list(neighbour.get_id(), valid_nodes)]
+
             if len(neighbors) < min_degree:
                 nodes_with_low_degree.append(node)
             i += 1
