@@ -139,7 +139,8 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
 
             for neighbour in graph.get_neighbours(current):
                 neighbour_id = neighbour.get_id()
-                new_cost = current_cost + neighbour.get_weight()
+                # Assuming each edge has a weight of 1 for unweighted graphs
+                new_cost = current_cost + 1
 
                 # If the new cost is cheaper and within budget, update it
                 if new_cost < costs[neighbour_id] and new_cost <= monetary_budget:
