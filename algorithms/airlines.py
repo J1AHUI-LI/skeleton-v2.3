@@ -122,14 +122,19 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
 #       The sorted list of viable destinations satisfying stopover and budget constraints.
 #     """
 #     pass
-
 def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
     destinations = ExtensibleList()
-    stack = [(origin, 0, 0)]  # Node, monetary_cost, stopover_cost
+    stack = Stack()
+    stack.push((origin, 0, 0))
+
     visited = set()
 
-    while stack:
+    while not stack.is_empty():
         current, monetary_cost, stopover_cost = stack.pop()
+
+        if stopover_cost > stopover_budget or monetary_cost > monetary_budget:
+            # Skip this path if it exceeds the budget limits
+            continue
 
         if current not in visited:
             visited.add(current)
@@ -139,15 +144,20 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
 
             neighbors = graph.get_neighbours(current)
             for neighbor, edge_cost in neighbors:
-                if monetary_cost + edge_cost <= monetary_budget and stopover_cost + 1 <= stopover_budget:
-                    stack.append((neighbor.get_id(), monetary_cost + edge_cost, stopover_cost + 1))
+                new_monetary_cost = monetary_cost + edge_cost
+                new_stopover_cost = stopover_cost + 1
+
+                if new_monetary_cost <= monetary_budget and new_stopover_cost <= stopover_budget:
+                    stack.push((neighbor.get_id(), new_monetary_cost, new_stopover_cost))
 
     return destinations
+
 
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
     destinations = dfs_traversal_modified(graph, origin, stopover_budget, monetary_budget)
     destinations.sort()
     return destinations
+
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
     """
@@ -165,41 +175,7 @@ def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
     """
 
     # Step 1: Initialization
-    num_nodes = len(graph._nodes)
-    distances = [float('inf')] * num_nodes
-    visited = [False] * num_nodes
-    distances[origin] = 0
-
-    queue = PriorityQueue()
-    queue.insert(0, origin)  # The distance to the origin is 0
-
-    # Step 2: Dijkstra's Algorithm
-    while not queue.is_empty():
-        current_distance, current_node = queue.remove_min()
-
-        # If the node was already visited, continue
-        if visited[current_node]:
-            continue
-
-        visited[current_node] = True
-
-        for neighbour in graph.get_neighbours(current_node):
-            neighbour_id = neighbour.get_id()
-            edge_weight = graph.get_edge(current_node, neighbour_id).get_weight()
-
-            # Check if the new path to the neighbour is shorter
-            if distances[current_node] + edge_weight < distances[neighbour_id]:
-                distances[neighbour_id] = distances[current_node] + edge_weight
-                queue.insert(distances[neighbour_id], neighbour_id)
-
-    # Step 3: Result Compilation
-    result = ExtensibleList()
-    for i in range(num_nodes):
-        if distances[i] != float('inf') and i != origin:  # Exclude unreachable nodes and the origin
-            result.append(Entry(i, distances[i]))
-
-    # Return the result
-    return result
+    pass
 
 
 def all_city_logistics(graph: Graph) -> Map:
