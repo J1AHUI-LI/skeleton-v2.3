@@ -57,8 +57,8 @@ class ExtensibleList:
         """
         Bounds checked access
         """
-        if index >= 0 and index < self._size:
-          return self._data[index]
+        if 0 <= index < self._size:
+            return self._data[index]
         return None
 
     def __getitem__(self, index: int) -> Any | None:
@@ -67,13 +67,13 @@ class ExtensibleList:
         An alias for get_at
         """
         return self.get_at(index)
-  
+
     def set_at(self, index: int, element: Any) -> None:
         """
         Allows an item to be overwritten if it is within the current logical
         "not None" part of the list, that is, [0, self._size - 1]
         """
-        if index >= 0 and index < self._size:
+        if 0 <= index < self._size:
             self._data[index] = element
 
     def __setitem__(self, index: int, element: Any) -> None:
@@ -118,7 +118,7 @@ class ExtensibleList:
         """
         elem = None
         # If the index is valid
-        if index >= 0 and index < self._size:
+        if 0 <= index < self._size:
             # Get the element
             elem = self._data[index]
             # Now shuffle all items back
@@ -167,8 +167,3 @@ class ExtensibleList:
                 self._data[i], self._data[j] = self._data[j], self._data[i]
         self._data[i + 1], self._data[high] = self._data[high], self._data[i + 1]
         return i + 1
-
-
-
-
-

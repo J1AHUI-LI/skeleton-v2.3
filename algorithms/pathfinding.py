@@ -144,18 +144,18 @@ def greedy_traversal(
                 return (path, visited_order)
 
             neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
-            current_coordinates = graph.get_node(current).get_coordinates()
+            # current_coordinates = graph.get_node(current).get_coordinates()
             for neighbor in neighbors:
                 if not is_in_extensible_list(neighbor, visited):
                     # Calculate the distance to the goal and use it as the priority
                     neighbor_coordinates = graph.get_node(neighbor).get_coordinates()
-                    dist = abs(neighbor_coordinates[0] - goal_coordinates[0]) + abs(neighbor_coordinates[1] - goal_coordinates[1])
+                    dist = (abs(neighbor_coordinates[0] - goal_coordinates[0]) +
+                            abs(neighbor_coordinates[1] - goal_coordinates[1]))
                     queue.insert(dist, neighbor)
                     if neighbor not in predecessors:
                         predecessors[neighbor] = current
 
     return (TraversalFailure.DISCONNECTED, visited_order)
-
 
 
 def distance(x_1: float, y_1: float, x_2: float, y_2: float) -> float:
@@ -202,19 +202,18 @@ def max_traversal(
                     i -= 1
                 path = reversed_path
 
-                return (path, visited_order)
+                return path, visited_order
 
             neighbors = [neighbour.get_id() for neighbour in graph.get_neighbours(current)]
-            current_coordinates = graph.get_node(current).get_coordinates()
+            # current_coordinates = graph.get_node(current).get_coordinates()
             for neighbor in neighbors:
                 if not is_in_extensible_list(neighbor, visited):
                     # Calculate the negative distance to the goal and use it as the priority
                     neighbor_coordinates = graph.get_node(neighbor).get_coordinates()
-                    dist = -(abs(neighbor_coordinates[0] - goal_coordinates[0]) + abs(neighbor_coordinates[1] - goal_coordinates[1]))
+                    dist = -(abs(neighbor_coordinates[0] - goal_coordinates[0]) +
+                             abs(neighbor_coordinates[1] - goal_coordinates[1]))
                     queue.insert(dist, neighbor)
                     if neighbor not in predecessors:
                         predecessors[neighbor] = current
 
-    return (TraversalFailure.DISCONNECTED, visited_order)
-
-
+    return TraversalFailure.DISCONNECTED, visited_order

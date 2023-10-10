@@ -136,7 +136,7 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     # Initialize destinations list
     destinations = ExtensibleList()
 
-    stopover_count = 0  # 用于跟踪停留次数
+    stopover_count = 0
 
     while not pq.is_empty() and stopover_count <= stopover_budget:
         current_cost, current_node = pq.remove_min()
@@ -156,7 +156,7 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
                     distances[neighbor.get_id()] = new_monetary_cost
                     pq.insert(new_monetary_cost, neighbor.get_id())
                     if current_node != origin:
-                        stopover_count += 1  # 如果不是起点，增加停留次数
+                        stopover_count += 1
 
     # Sort the destinations list based on monetary cost
     destinations.sort()
@@ -180,6 +180,7 @@ def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
     """
 
     pass
+
 
 def all_city_logistics(graph: Graph) -> Map:
     """

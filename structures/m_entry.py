@@ -14,7 +14,6 @@ class Entry(Hashable):
     Implements a simple type that holds keys and values. Extends the Hashable
     type to ensure get_hash() is available/used for arbitrary key types.
     """
-  
     def __init__(self, key: Any, value: Any) -> None:
         """
         An entry has a key (used for comparing to other entries or for hashing)
@@ -51,18 +50,18 @@ class Entry(Hashable):
         return self.get_key() < other.get_key()
 
     def get_hash(self) -> int:
-      """
-      Returns a hash of self._key - this hash function MUST be implemented if
-      you need to hash Entry types. In other words, do not use Python's magic
-      __hash__() function, but rather, you need to make your own. You are
-      welcome to use existing functions, but you need to implement it here
-      (and cite it in your report/statement file).
-      """
-      hash_value = 0
-      key_str = str(self._key)
-      for char in key_str:
-          hash_value += ord(char)
-      return hash_value
+        """
+        Returns a hash of self._key - this hash function MUST be implemented if
+        you need to hash Entry types. In other words, do not use Python's magic
+        __hash__() function, but rather, you need to make your own. You are
+        welcome to use existing functions, but you need to implement it here
+        (and cite it in your report/statement file).
+        """
+        hash_value = 0
+        key_str = str(self._key)
+        for char in key_str:
+            hash_value += ord(char)
+        return hash_value
     # You may add helpers/additional functionality below if you wish
 
 

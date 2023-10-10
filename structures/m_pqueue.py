@@ -19,6 +19,7 @@ class PriorityQueue:
     For convenience, you may wish to also implement the functionality provided in
     terms of the Entry type, but this is up to you.
     """
+
     def __init__(self):
         """
         Construct the priority queue.
