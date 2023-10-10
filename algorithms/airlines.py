@@ -105,63 +105,61 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
     return valid_nodes
 
 
+# def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
+#     """
+#     Task 3.3: Big Bogan Budget Bonanza
+#
+#     @param: graph
+#       The general graph to process
+#     @param: origin
+#       The origin from where the passenger wishes to fly
+#     @param: stopover_budget
+#       The maximum number of stopovers the passenger is willing to make
+#     @param: monetary_budget
+#       The maximum amount of money the passenger is willing to spend
+#
+#     @returns: ExtensibleList
+#       The sorted list of viable destinations satisfying stopover and budget constraints.
+#     """
+#
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-    """
-    Task 3.3: Big Bogan Budget Bonanza
+    # Initialize distances and stopovers with infinity and -1 respectively
+    distances = [float('inf')] * len(graph._nodes)
+    stopovers = [-1] * len(graph._nodes)
+    distances[origin] = 0
+    stopovers[origin] = 0
 
-    @param: graph
-      The general graph to process
-    @param: origin
-      The origin from where the passenger wishes to fly
-    @param: stopover_budget
-      The maximum number of stopovers the passenger is willing to make
-    @param: monetary_budget
-      The maximum amount of money the passenger is willing to spend
-
-    @returns: ExtensibleList
-      The sorted list of viable destinations satisfying stopover and budget constraints.
-    """
-    # Initial setup
+    # Priority queue: (cost, stopovers, node_id)
     queue = PriorityQueue()
-    visited = [False] * len(graph._nodes)
-    costs = [float('inf')] * len(graph._nodes)  # Using float('inf') to represent infinity (unreachable)
-    stopovers = [0] * len(graph._nodes)
-
-    # Starting from the origin
-    queue.insert(0, origin)
-    costs[origin] = 0
+    queue.insert(0, (0, origin))
 
     while not queue.is_empty():
-        current_cost, current = queue.remove_min()
+        current_cost, current_node = queue.remove_min()
+        current_stopover = stopovers[current_node]
 
-        if not visited[current]:
-            visited[current] = True
+        # If we've already processed a better path to this node, skip
+        if current_cost > distances[current_node]:
+            continue
 
-            for neighbour in graph.get_neighbours(current):
-                neighbour_id = neighbour.get_id()
-                # Assuming each edge has a weight of 1 for unweighted graphs
-                new_cost = current_cost + 1
+        for neighbour, edge_cost in graph.get_neighbours(current_node):
+            neighbour_id = neighbour.get_id()
 
-                # If the new cost is cheaper and within budget, update it
-                if new_cost < costs[neighbour_id] and new_cost <= monetary_budget:
-                    costs[neighbour_id] = new_cost
-                    stopovers[neighbour_id] = stopovers[current] + 1
-                    queue.insert(new_cost, neighbour_id)
+            # If we can reach the neighbour with fewer stopovers and cost, update
+            if current_stopover + 1 <= stopover_budget and current_cost + edge_cost < distances[neighbour_id]:
+                distances[neighbour_id] = current_cost + edge_cost
+                stopovers[neighbour_id] = current_stopover + 1
+                queue.insert(int(distances[neighbour_id] * 1000), (distances[neighbour_id], neighbour_id))
 
-    destinations = []
-    for i in range(len(graph._nodes)):
-        if i != origin and costs[i] <= monetary_budget and stopovers[i] <= stopover_budget:
-            destinations.append((i, costs[i], stopovers[i]))
+    # Filter destinations based on monetary budget
+    destinations = ExtensibleList()
+    for i, cost in enumerate(distances):
+        if cost <= monetary_budget:
+            destinations.append((i, cost, stopovers[i]))
 
-    # Sort the destinations based on the number of stopovers, then by cost
-    destinations.sort(key=lambda x: (x[2], x[1]))
+    # Sort destinations
+    destinations = ExtensibleList(sorted(destinations, key=lambda x: (x[1], x[2], x[0])))
 
-    # Convert the sorted list to ExtensibleList
-    result = ExtensibleList()
-    for dest in destinations:
-        result.append(dest[0])  # Assuming you only want to return the node ID. Adjust as necessary.
-
-    return result
+    return destinations
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
