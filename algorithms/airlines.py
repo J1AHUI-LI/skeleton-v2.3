@@ -129,26 +129,18 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     distances[origin] = 0
     stopovers[origin] = 0
 
-    # Priority queue: (cost, stopovers, node_id)
-    queue = PriorityQueue()
-    queue.insert(0, (0, origin))
+    visited = [False] * len(graph._nodes)
 
-    while not queue.is_empty():
-        current_cost, current_node = queue.remove_min()
-        current_stopover = stopovers[current_node]
+    for _ in range(len(graph._nodes)):
+        # Find the node with the minimum distance value, from the set of nodes not yet processed
+        u = min_distance(distances, visited)
+        visited[u] = True
 
-        # If we've already processed a better path to this node, skip
-        if current_cost > distances[current_node]:
-            continue
-
-        for neighbour, edge_cost in graph.get_neighbours(current_node):
+        for neighbour, edge_cost in graph.get_neighbours(u):
             neighbour_id = neighbour.get_id()
-
-            # If we can reach the neighbour with fewer stopovers and cost, update
-            if current_stopover + 1 <= stopover_budget and current_cost + edge_cost < distances[neighbour_id]:
-                distances[neighbour_id] = current_cost + edge_cost
-                stopovers[neighbour_id] = current_stopover + 1
-                queue.insert(int(distances[neighbour_id] * 1000), (distances[neighbour_id], neighbour_id))
+            if not visited[neighbour_id] and distances[u] + edge_cost < distances[neighbour_id] and stopovers[u] + 1 <= stopover_budget:
+                distances[neighbour_id] = distances[u] + edge_cost
+                stopovers[neighbour_id] = stopovers[u] + 1
 
     # Filter destinations based on monetary budget
     destinations = ExtensibleList()
@@ -160,6 +152,15 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     destinations = ExtensibleList(sorted(destinations, key=lambda x: (x[1], x[2], x[0])))
 
     return destinations
+
+def min_distance(distances, visited):
+    min_val = float('inf')
+    min_index = -1
+    for i, dist in enumerate(distances):
+        if not visited[i] and dist < min_val:
+            min_val = dist
+            min_index = i
+    return min_index
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
