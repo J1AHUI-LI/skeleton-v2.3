@@ -124,36 +124,31 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     distances = Map()
     for node in range(len(graph._nodes)):
         distances.insert_kv(node, float('inf'))
+    distances.insert_kv(origin, 0)
 
     pq = PriorityQueue()
-    pq.insert(0, (0, origin))
+    pq.insert(0, (0, origin, 0))  # Insert as a tuple (cost, node, stopovers)
 
     visited = set()
     destinations = ExtensibleList()
-    stopover_count = 0
 
-    while not pq.is_empty() and stopover_count <= stopover_budget:
+    while not pq.is_empty():
         current_tuple = pq.remove_min()
-        current_cost, current_node = current_tuple
+        current_cost, current_node, stopovers = current_tuple
 
-        if current_node in visited:
+        if current_node in visited or stopovers > stopover_budget:
             continue
         visited.add(current_node)
 
         if current_node != origin:
-            cost_money = current_cost - distances.find(current_node)  # 使用find查找键的值
-            cost_stopover = stopover_count
-            destinations.append(Destination(current_node, None, cost_money, cost_stopover))
+            destinations.append(Destination(current_node, None, current_cost, stopovers))
 
         neighbors = graph.get_neighbours(current_node)
         for neighbor, edge_cost in neighbors:
             new_monetary_cost = current_cost + edge_cost
-            if new_monetary_cost <= monetary_budget:
-                if new_monetary_cost < distances[neighbor.get_id()]:
-                    distances[neighbor.get_id()] = new_monetary_cost
-                    pq.insert(new_monetary_cost, (new_monetary_cost, neighbor.get_id()))  # Insert as a tuple
-                    if current_node != origin:
-                        stopover_count += 1
+            if new_monetary_cost <= monetary_budget and new_monetary_cost < distances.find(neighbor.get_id()):
+                distances.insert_kv(neighbor.get_id(), new_monetary_cost)
+                pq.insert(new_monetary_cost, (new_monetary_cost, neighbor.get_id(), stopovers + 1))
 
     destinations.sort()
     return destinations
