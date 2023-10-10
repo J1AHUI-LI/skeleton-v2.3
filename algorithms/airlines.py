@@ -121,35 +121,34 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
 #     @returns: ExtensibleList
 #       The sorted list of viable destinations satisfying stopover and budget constraints.
 #     """
-#
-def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-    visited = set()
+#     pass
+
+def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
     destinations = ExtensibleList()
-    queue = PriorityQueue()
-    queue.insert(0, (origin, 0, 0))  # (node_id, monetary_cost, stopovers)
+    stack = [(origin, 0, 0)]  # Node, monetary_cost, stopover_cost
+    visited = set()
 
-    while not queue.is_empty():
-        current_node_id, current_cost, current_stopovers = queue.remove_min()
+    while stack:
+        current, monetary_cost, stopover_cost = stack.pop()
 
-        if current_node_id in visited:
-            continue
+        if current not in visited:
+            visited.add(current)
 
-        visited.add(current_node_id)
+            if current != origin:
+                destinations.append(Destination(current, None, monetary_cost, stopover_cost))
 
-        if current_node_id != origin:
-            destinations.append(Destination(current_node_id, current_cost, current_stopovers))
+            neighbors = graph.get_neighbours(current)
+            for neighbor, edge_cost in neighbors:
+                if monetary_cost + edge_cost <= monetary_budget and stopover_cost + 1 <= stopover_budget:
+                    stack.append((neighbor.get_id(), monetary_cost + edge_cost, stopover_cost + 1))
 
-        for neighbour, edge_cost in graph.get_neighbours(current_node_id):
-            neighbour_id = neighbour.get_id()
-            if neighbour_id not in visited:
-                new_cost = current_cost + edge_cost
-                new_stopovers = current_stopovers + 1
+    return destinations
 
-                if new_cost <= monetary_budget and new_stopovers <= stopover_budget:
-                    queue.insert(new_cost, (neighbour_id, new_cost, new_stopovers))
-
+def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
+    destinations = dfs_traversal_modified(graph, origin, stopover_budget, monetary_budget)
     destinations.sort()
     return destinations
+
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
