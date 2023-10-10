@@ -122,8 +122,8 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
 #       The sorted list of viable destinations satisfying stopover and budget constraints.
 #     """
 #     pass
-def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> list[int]:
-    destinations = []  # 使用列表存储目的地的数字
+def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
+    destinations = ExtensibleList()
     stack = Stack()
     stack.push((origin, 0, 0))
 
@@ -133,14 +133,14 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
         current, monetary_cost, stopover_cost = stack.pop()
 
         if stopover_cost > stopover_budget or monetary_cost > monetary_budget:
-            # 超出预算限制的路径将被跳过
+            # Skip this path if it exceeds the budget limits
             continue
 
         if current not in visited:
             visited.add(current)
 
             if current != origin:
-                destinations.append(current)  # 仅将目的地的数字添加到列表中，而不是完整的 Destination 对象
+                destinations.append(Destination(current, None, monetary_cost, stopover_cost))
 
             neighbors = graph.get_neighbours(current)
             for neighbor, edge_cost in neighbors:
@@ -152,11 +152,11 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
 
     return destinations
 
-def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> list[int]:
+
+def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
     destinations = dfs_traversal_modified(graph, origin, stopover_budget, monetary_budget)
     destinations.sort()
     return destinations
-
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
