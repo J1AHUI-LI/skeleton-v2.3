@@ -5,7 +5,7 @@ The University of Queensland
 NOTE: This file will be used for marking.
 """
 
-from structures.m_entry import Entry
+from structures.m_entry import Entry, Destination
 from structures.m_extensible_list import ExtensibleList
 from structures.m_graph import Graph
 from structures.m_map import Map
@@ -123,19 +123,6 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
 #     """
 #
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-    class Destination:
-        def __init__(self, node_id, monetary_cost, stopovers):
-            self.node_id = node_id
-            self.monetary_cost = monetary_cost
-            self.stopovers = stopovers
-
-        def __lt__(self, other):
-            if self.monetary_cost == other.monetary_cost:
-                if self.stopovers == other.stopovers:
-                    return self.node_id < other.node_id
-                return self.stopovers < other.stopovers
-            return self.monetary_cost < other.monetary_cost
-
     visited = set()
     destinations = ExtensibleList()
     queue = PriorityQueue()
