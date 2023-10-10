@@ -5,13 +5,11 @@ The University of Queensland
 NOTE: This file will be used for marking.
 """
 
-from structures.m_entry import Entry
 from structures.m_extensible_list import ExtensibleList
 from structures.m_graph import Graph, LatticeGraph
-from structures.m_map import Map
 from structures.m_pqueue import PriorityQueue
 from structures.m_stack import Stack
-from structures.m_util import Hashable, TraversalFailure
+from structures.m_util import TraversalFailure
 
 
 def dfs_traversal(

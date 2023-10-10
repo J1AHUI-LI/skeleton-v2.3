@@ -5,13 +5,12 @@ The University of Queensland
 NOTE: This file will be used for marking.
 """
 
-from structures.m_entry import Entry, Destination
+from structures.m_entry import Destination
 from structures.m_extensible_list import ExtensibleList
 from structures.m_graph import Graph
 from structures.m_map import Map
 from structures.m_pqueue import PriorityQueue
-from structures.m_stack import Stack
-from structures.m_util import Hashable, TraversalFailure
+
 
 
 def has_cycles(graph: Graph) -> bool:
@@ -148,12 +147,15 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
         if current_node != origin:
             destinations.append(Destination(current_node, None, current_cost, current_stopovers))
 
+        if current_cost > monetary_budget or current_stopovers > stopover_budget:
+            continue
+
         neighbors = graph.get_neighbours(current_node)
         for neighbor, edge_cost in neighbors:
             new_monetary_cost = current_cost + edge_cost
-            if new_monetary_cost <= monetary_budget and new_monetary_cost < distances.find(neighbor.get_id()):
-                # Only increase the stopover count if the neighbor is not directly connected to the origin
-                new_stopovers = current_stopovers if current_node == origin else current_stopovers + 1
+            # Only increase the stopover count if the neighbor is not directly connected to the origin
+            new_stopovers = current_stopovers if current_node == origin else current_stopovers + 1
+            if new_monetary_cost <= monetary_budget and new_monetary_cost < distances.find(neighbor.get_id()) and new_stopovers <= stopover_budget:
                 distances.insert_kv(neighbor.get_id(), new_monetary_cost)
                 stopovers.insert_kv(neighbor.get_id(), new_stopovers)
                 if neighbor.get_id() not in visited:
@@ -161,6 +163,7 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
 
     destinations.sort()
     return destinations
+
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
