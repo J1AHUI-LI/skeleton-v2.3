@@ -71,7 +71,6 @@ class Destination(Entry):
     a trip from some origin to a destination. You can use _value however
     you like, or ignore it completely.
     """
-
     def __init__(self, key: Any, value: Any, cost_money: int, cost_stopover: int) -> None:
         super().__init__(key, value)
         self._cost_m = cost_money
@@ -88,5 +87,19 @@ class Destination(Entry):
 
     def update_cost_stopover(self, ncs) -> None:
         self._cost_s = ncs
+
+    # override method
+    def __lt__(self, other: "Destination") -> bool:
+        if self._cost_m < other._cost_m:
+            return True
+        elif self._cost_m == other._cost_m:
+            if self._cost_s < other._cost_s:
+                return True
+            elif self._cost_s == other._cost_s:
+                return self._key < other._key
+        return False
+
+    def __str__(self) -> str:
+        return f"Destination(ID: {self._key}, Cost: {self._cost_m}, Stopovers: {self._cost_s})"
     # You may add helpers/additional functionality below if you wish, and
     # you may override inherited methods here if you wish
