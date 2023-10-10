@@ -149,8 +149,6 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     destinations.sort()
     return destinations
 
-
-
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
     """
     Task 3.4: BA Field Maintenance Optimisation

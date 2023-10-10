@@ -86,6 +86,5 @@ class Destination(Entry):
     def update_cost_stopover(self, ncs) -> None:
         self._cost_s = ncs
 
-
     # You may add helpers/additional functionality below if you wish, and
     # you may override inherited methods here if you wish
