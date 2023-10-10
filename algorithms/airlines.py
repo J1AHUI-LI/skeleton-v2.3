@@ -149,7 +149,7 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
                 new_stopover_cost = stopover_cost + 1
 
                 if new_monetary_cost <= monetary_budget and new_stopover_cost <= stopover_budget:
-                    stack.push((neighbor.get_id(), new_monetary_cost, new_stopover_cost))
+                    stack.push((new_monetary_cost, new_stopover_cost, neighbor.get_id()))
 
     destinations.sort()
     return destinations
