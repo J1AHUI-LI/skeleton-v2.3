@@ -5,7 +5,7 @@ The University of Queensland
 NOTE: This file will be used for marking.
 """
 
-from structures.m_entry import Entry, Destination
+from structures.m_entry import Entry
 from structures.m_extensible_list import ExtensibleList
 from structures.m_graph import Graph
 from structures.m_map import Map
@@ -105,54 +105,23 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
     return valid_nodes
 
 
-# def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-#     """
-#     Task 3.3: Big Bogan Budget Bonanza
-#
-#     @param: graph
-#       The general graph to process
-#     @param: origin
-#       The origin from where the passenger wishes to fly
-#     @param: stopover_budget
-#       The maximum number of stopovers the passenger is willing to make
-#     @param: monetary_budget
-#       The maximum amount of money the passenger is willing to spend
-#
-#     @returns: ExtensibleList
-#       The sorted list of viable destinations satisfying stopover and budget constraints.
-#     """
-#     pass
-
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-    destinations = ExtensibleList()
-    stack = Stack()
-    stack.push((origin, 0, 0))
+    """
+    Task 3.3: Big Bogan Budget Bonanza
 
-    visited = set()
+    @param: graph
+      The general graph to process
+    @param: origin
+      The origin from where the passenger wishes to fly
+    @param: stopover_budget
+      The maximum number of stopovers the passenger is willing to make
+    @param: monetary_budget
+      The maximum amount of money the passenger is willing to spend
 
-    while not stack.is_empty():
-        current, monetary_cost, stopover_cost = stack.pop()
-
-        if stopover_cost > stopover_budget or monetary_cost > monetary_budget:
-            # Skip this path if it exceeds the budget limits
-            continue
-
-        if current not in visited:
-            visited.add(current)
-
-            if current != origin:
-                destinations.append(Destination(current, None, stopover_cost, monetary_cost))
-
-            neighbors = graph.get_neighbours(current)
-            for neighbor, edge_cost in neighbors:
-                new_monetary_cost = monetary_cost + edge_cost
-                new_stopover_cost = stopover_cost + 1
-
-                if new_monetary_cost <= monetary_budget and new_stopover_cost <= stopover_budget:
-                    stack.push((new_monetary_cost, new_stopover_cost, neighbor.get_id()))
-
-    destinations.sort()
-    return destinations
+    @returns: ExtensibleList
+      The sorted list of viable destinations satisfying stopover and budget constraints.
+    """
+    pass
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
@@ -171,7 +140,41 @@ def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
     """
 
     # Step 1: Initialization
-    pass
+    num_nodes = len(graph._nodes)
+    distances = [float('inf')] * num_nodes
+    visited = [False] * num_nodes
+    distances[origin] = 0
+
+    queue = PriorityQueue()
+    queue.insert(0, origin)  # The distance to the origin is 0
+
+    # Step 2: Dijkstra's Algorithm
+    while not queue.is_empty():
+        current_distance, current_node = queue.remove_min()
+
+        # If the node was already visited, continue
+        if visited[current_node]:
+            continue
+
+        visited[current_node] = True
+
+        for neighbour in graph.get_neighbours(current_node):
+            neighbour_id = neighbour.get_id()
+            edge_weight = graph.get_edge(current_node, neighbour_id).get_weight()
+
+            # Check if the new path to the neighbour is shorter
+            if distances[current_node] + edge_weight < distances[neighbour_id]:
+                distances[neighbour_id] = distances[current_node] + edge_weight
+                queue.insert(distances[neighbour_id], neighbour_id)
+
+    # Step 3: Result Compilation
+    result = ExtensibleList()
+    for i in range(num_nodes):
+        if distances[i] != float('inf') and i != origin:  # Exclude unreachable nodes and the origin
+            result.append(Entry(i, distances[i]))
+
+    # Return the result
+    return result
 
 
 def all_city_logistics(graph: Graph) -> Map:
