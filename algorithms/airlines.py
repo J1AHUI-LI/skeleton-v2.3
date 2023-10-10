@@ -122,6 +122,7 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
 #       The sorted list of viable destinations satisfying stopover and budget constraints.
 #     """
 #     pass
+
 def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
     destinations = ExtensibleList()
     stack = Stack()
@@ -155,10 +156,7 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
 
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
     destinations = dfs_traversal_modified(graph, origin, stopover_budget, monetary_budget)
-
-    # Sort destinations based on your custom comparison logic using __lt__
     destinations.sort()
-
     return destinations
 
 

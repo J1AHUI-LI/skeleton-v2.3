@@ -86,12 +86,5 @@ class Destination(Entry):
     def update_cost_stopover(self, ncs) -> None:
         self._cost_s = ncs
 
-    def __lt__(self, other) -> bool:
-        """
-        Override the less-than comparison to define custom sorting behavior.
-        You can customize the comparison logic based on your requirements.
-        """
-        # For example, you can compare based on monetary cost
-        return self._cost_m < other._cost_m
     # You may add helpers/additional functionality below if you wish, and
     # you may override inherited methods here if you wish
