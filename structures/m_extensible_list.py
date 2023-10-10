@@ -158,11 +158,11 @@ class ExtensibleList:
             self._quick_sort(pi + 1, high)
 
     def _partition(self, low: int, high: int) -> int:
-        pivot_index = high  # 可以选择任何元素作为基准，这里选择最后一个
+        pivot_index = high
         pivot = self._data[pivot_index]
         i = low - 1
         for j in range(low, high):
-            if self._data[j] < pivot:  # 确保对象实现了 __lt__ 方法
+            if self._data[j] < pivot:
                 i += 1
                 self._data[i], self._data[j] = self._data[j], self._data[i]
         self._data[i + 1], self._data[high] = self._data[high], self._data[i + 1]
