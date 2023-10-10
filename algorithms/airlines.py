@@ -149,7 +149,9 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
         neighbors = graph.get_neighbours(current_node)
         for neighbor, edge_cost in neighbors:
             new_monetary_cost = current_cost + edge_cost
-            new_stopovers = current_stopovers + 1
+            new_stopovers = current_stopovers
+            if neighbor != origin:  # Only increase stopovers if the neighbor is not the origin
+                new_stopovers += 1
             if new_monetary_cost <= monetary_budget and new_stopovers <= stopover_budget:
                 if new_monetary_cost < distances.find(neighbor.get_id()) or new_stopovers < stopovers.find(
                         neighbor.get_id()):
