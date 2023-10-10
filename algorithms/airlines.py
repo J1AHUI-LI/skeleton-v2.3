@@ -150,11 +150,12 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
         for neighbor, edge_cost in neighbors:
             new_monetary_cost = current_cost + edge_cost
             new_stopovers = current_stopovers + 1
-            if new_monetary_cost <= monetary_budget and new_monetary_cost < distances.find(
-                    neighbor.get_id()) and new_stopovers <= stopovers.find(neighbor.get_id()):
-                distances.insert_kv(neighbor.get_id(), new_monetary_cost)
-                stopovers.insert_kv(neighbor.get_id(), new_stopovers)
-                pq.insert(new_monetary_cost, (new_monetary_cost, neighbor.get_id(), new_stopovers))
+            if new_monetary_cost <= monetary_budget and new_stopovers <= stopover_budget:
+                if new_monetary_cost < distances.find(neighbor.get_id()) or new_stopovers < stopovers.find(
+                        neighbor.get_id()):
+                    distances.insert_kv(neighbor.get_id(), new_monetary_cost)
+                    stopovers.insert_kv(neighbor.get_id(), new_stopovers)
+                    pq.insert(new_monetary_cost, (new_monetary_cost, neighbor.get_id(), new_stopovers))
 
     destinations.sort()
     return destinations
