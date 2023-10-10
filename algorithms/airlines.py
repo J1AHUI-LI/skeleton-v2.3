@@ -123,7 +123,7 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
 #     """
 #     pass
 
-def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
+def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
     destinations = ExtensibleList()
     stack = Stack()
     stack.push((origin, 0, 0))
@@ -151,11 +151,6 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
                 if new_monetary_cost <= monetary_budget and new_stopover_cost <= stopover_budget:
                     stack.push((neighbor.get_id(), new_monetary_cost, new_stopover_cost))
 
-    return destinations
-
-
-def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-    destinations = dfs_traversal_modified(graph, origin, stopover_budget, monetary_budget)
     destinations.sort()
     return destinations
 
