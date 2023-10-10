@@ -139,43 +139,7 @@ def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
       and the value being the cost.
     """
 
-    # Step 1: Initialization
-    num_nodes = len(graph._nodes)
-    distances = [float('inf')] * num_nodes
-    visited = [False] * num_nodes
-    distances[origin] = 0
-
-    queue = PriorityQueue()
-    queue.insert(0, origin)  # The distance to the origin is 0
-
-    # Step 2: Dijkstra's Algorithm
-    while not queue.is_empty():
-        current_distance, current_node = queue.remove_min()
-
-        # If the node was already visited, continue
-        if visited[current_node]:
-            continue
-
-        visited[current_node] = True
-
-        for neighbour in graph.get_neighbours(current_node):
-            neighbour_id = neighbour.get_id()
-            edge_weight = graph.get_edge(current_node, neighbour_id).get_weight()
-
-            # Check if the new path to the neighbour is shorter
-            if distances[current_node] + edge_weight < distances[neighbour_id]:
-                distances[neighbour_id] = distances[current_node] + edge_weight
-                queue.insert(distances[neighbour_id], neighbour_id)
-
-    # Step 3: Result Compilation
-    result = ExtensibleList()
-    for i in range(num_nodes):
-        if distances[i] != float('inf') and i != origin:  # Exclude unreachable nodes and the origin
-            result.append(Entry(i, distances[i]))
-
-    # Return the result
-    return result
-
+    pass
 
 def all_city_logistics(graph: Graph) -> Map:
     """
