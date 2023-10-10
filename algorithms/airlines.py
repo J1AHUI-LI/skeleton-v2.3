@@ -133,6 +133,10 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
     while not stack.is_empty():
         current, monetary_cost, stopover_cost = stack.pop()
 
+        if stopover_cost > stopover_budget or monetary_cost > monetary_budget:
+            # Skip this path if it exceeds the budget limits
+            continue
+
         if current not in visited:
             visited.add(current)
 
@@ -148,7 +152,6 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
                     stack.push((neighbor.get_id(), new_monetary_cost, new_stopover_cost))
 
     return destinations
-
 
 
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
