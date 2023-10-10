@@ -5,7 +5,7 @@ The University of Queensland
 NOTE: This file will be used for marking.
 """
 
-from structures.m_entry import Entry
+from structures.m_entry import Entry, Destination
 from structures.m_extensible_list import ExtensibleList
 from structures.m_graph import Graph
 from structures.m_map import Map
@@ -121,7 +121,47 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     @returns: ExtensibleList
       The sorted list of viable destinations satisfying stopover and budget constraints.
     """
-    pass
+    # Initialize distances as a regular dictionary
+    distances = {}
+    for node in range(len(graph._nodes)):
+        distances[node] = float('inf')
+
+    # Create a priority queue and insert the origin with a cost of 0
+    pq = PriorityQueue()
+    pq.insert(0, origin)
+
+    # Create a visited set to keep track of visited nodes
+    visited = set()
+
+    # Initialize destinations list
+    destinations = ExtensibleList()
+
+    stopover_count = 0  # 用于跟踪停留次数
+
+    while not pq.is_empty() and stopover_count <= stopover_budget:
+        current_cost, current_node = pq.remove_min()
+        if current_node in visited:
+            continue
+        visited.add(current_node)
+        if current_node != origin:
+            # 计算 cost_money 和 cost_stopover
+            cost_money = current_cost - distances[current_node]
+            cost_stopover = stopover_count
+            destinations.append(Destination(current_node, None, cost_money, cost_stopover))
+        neighbors = graph.get_neighbours(current_node)
+        for neighbor, edge_cost in neighbors:
+            new_monetary_cost = current_cost + edge_cost
+            if new_monetary_cost <= monetary_budget:
+                if new_monetary_cost < distances[neighbor.get_id()]:
+                    distances[neighbor.get_id()] = new_monetary_cost
+                    pq.insert(new_monetary_cost, neighbor.get_id())
+                    if current_node != origin:
+                        stopover_count += 1  # 如果不是起点，增加停留次数
+
+    # Sort the destinations list based on monetary cost
+    destinations.sort()
+
+    return destinations
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:

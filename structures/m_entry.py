@@ -58,7 +58,11 @@ class Entry(Hashable):
       welcome to use existing functions, but you need to implement it here
       (and cite it in your report/statement file).
       """
-
+      hash_value = 0
+      key_str = str(self._key)
+      for char in key_str:
+          hash_value += ord(char)
+      return hash_value
     # You may add helpers/additional functionality below if you wish
 
 
@@ -86,5 +90,14 @@ class Destination(Entry):
     def update_cost_stopover(self, ncs) -> None:
         self._cost_s = ncs
 
+    def get_hash(self) -> int:
+        """
+        Custom hash function for the key.
+        """
+        hash_value = 0
+        key_str = str(self._key)
+        for char in key_str:
+            hash_value += ord(char)
+        return hash_value
     # You may add helpers/additional functionality below if you wish, and
     # you may override inherited methods here if you wish
