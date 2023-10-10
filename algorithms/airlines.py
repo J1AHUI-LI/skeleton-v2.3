@@ -123,15 +123,15 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
 #     """
 #     pass
 
-def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
+def bfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
     destinations = ExtensibleList()
-    stack = Stack()
-    stack.push((origin, 0, 0))
+    queue = PriorityQueue()
+    queue.insert_fifo((origin, 0, 0))  # Node, monetary_cost, stopover_cost
 
     visited = set()
 
-    while not stack.is_empty():
-        current, monetary_cost, stopover_cost = stack.pop()
+    while not queue.is_empty():
+        current, monetary_cost, stopover_cost = queue.remove_min()
 
         if stopover_cost > stopover_budget or monetary_cost > monetary_budget:
             # Skip this path if it exceeds the budget limits
@@ -141,7 +141,7 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
             visited.add(current)
 
             if current != origin:
-                destinations.append(Destination(current, None, monetary_cost, stopover_cost))
+                destinations.append(Destination(current, None, stopover_cost, monetary_cost))
 
             neighbors = graph.get_neighbours(current)
             for neighbor, edge_cost in neighbors:
@@ -149,16 +149,16 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
                 new_stopover_cost = stopover_cost + 1
 
                 if new_monetary_cost <= monetary_budget and new_stopover_cost <= stopover_budget:
-                    stack.push((neighbor.get_id(), new_monetary_cost, new_stopover_cost))
+                    queue.insert_fifo((neighbor.get_id(), new_monetary_cost, new_stopover_cost))
 
     return destinations
+
 
 
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-    destinations = dfs_traversal_modified(graph, origin, stopover_budget, monetary_budget)
+    destinations = bfs_traversal_modified(graph, origin, stopover_budget, monetary_budget)
     destinations.sort()
     return destinations
-
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
     """
