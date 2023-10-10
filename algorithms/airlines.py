@@ -12,7 +12,6 @@ from structures.m_map import Map
 from structures.m_pqueue import PriorityQueue
 
 
-
 def has_cycles(graph: Graph) -> bool:
     """
     Task 3.1: Cycle detection
@@ -160,8 +159,8 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
             new_monetary_cost = current_cost + edge_cost
             # Only increase the stopover count if the neighbor is not directly connected to the origin
             new_stopovers = current_stopovers if current_node == origin else current_stopovers + 1
-            if new_monetary_cost <= monetary_budget and new_monetary_cost < distances[
-                neighbor.get_id()] and new_stopovers <= stopover_budget:
+            if (new_monetary_cost <= monetary_budget and new_monetary_cost <
+                    distances[neighbor.get_id()] and new_stopovers <= stopover_budget):
                 distances[neighbor.get_id()] = new_monetary_cost
                 stopovers[neighbor.get_id()] = new_stopovers
                 if not visited[neighbor.get_id()]:
@@ -169,7 +168,6 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
 
     destinations.sort()
     return destinations
-
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
