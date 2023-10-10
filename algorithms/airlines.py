@@ -121,41 +121,40 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     @returns: ExtensibleList
       The sorted list of viable destinations satisfying stopover and budget constraints.
     """
-    paths = Map()
+    distances = Map()
+    stopovers = Map()
     for node in range(len(graph._nodes)):
-        paths.insert_kv(node, [])
-
-    paths.insert_kv(origin, [(0, 0)])  # (cost, stopovers)
+        distances.insert_kv(node, float('inf'))
+        stopovers.insert_kv(node, float('inf'))
+    distances.insert_kv(origin, 0)
+    stopovers.insert_kv(origin, 0)
 
     pq = PriorityQueue()
     pq.insert(0, (0, origin, 0))  # Insert as a tuple (cost, node, stopovers)
 
+    visited = set()
     destinations = ExtensibleList()
-    visited = set()  # To keep track of visited nodes
 
     while not pq.is_empty():
         current_tuple = pq.remove_min()
-        current_cost, current_node, stopovers = current_tuple
+        current_cost, current_node, current_stopovers = current_tuple
 
         if current_node in visited:
             continue
-
         visited.add(current_node)
 
-        if stopovers > stopover_budget:
-            continue
-
         if current_node != origin:
-            destinations.append(Destination(current_node, None, current_cost, stopovers))
+            destinations.append(Destination(current_node, None, current_cost, current_stopovers))
 
         neighbors = graph.get_neighbours(current_node)
         for neighbor, edge_cost in neighbors:
             new_monetary_cost = current_cost + edge_cost
-            if new_monetary_cost <= monetary_budget:
-                current_paths = paths.find(neighbor.get_id())
-                if not any(path for path in current_paths if path[0] <= new_monetary_cost and path[1] <= stopovers + 1):
-                    paths.insert_kv(neighbor.get_id(), current_paths + [(new_monetary_cost, stopovers + 1)])
-                    pq.insert(new_monetary_cost, (new_monetary_cost, neighbor.get_id(), stopovers + 1))
+            new_stopovers = current_stopovers + 1
+            if new_monetary_cost <= monetary_budget and new_monetary_cost < distances.find(
+                    neighbor.get_id()) and new_stopovers <= stopovers.find(neighbor.get_id()):
+                distances.insert_kv(neighbor.get_id(), new_monetary_cost)
+                stopovers.insert_kv(neighbor.get_id(), new_stopovers)
+                pq.insert(new_monetary_cost, (new_monetary_cost, neighbor.get_id(), new_stopovers))
 
     destinations.sort()
     return destinations
