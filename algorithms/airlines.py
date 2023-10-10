@@ -105,22 +105,24 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
     return valid_nodes
 
 
+# def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
+#     """
+#     Task 3.3: Big Bogan Budget Bonanza
+#
+#     @param: graph
+#       The general graph to process
+#     @param: origin
+#       The origin from where the passenger wishes to fly
+#     @param: stopover_budget
+#       The maximum number of stopovers the passenger is willing to make
+#     @param: monetary_budget
+#       The maximum amount of money the passenger is willing to spend
+#
+#     @returns: ExtensibleList
+#       The sorted list of viable destinations satisfying stopover and budget constraints.
+#     """
+#     pass
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-    """
-    Task 3.3: Big Bogan Budget Bonanza
-
-    @param: graph
-      The general graph to process
-    @param: origin
-      The origin from where the passenger wishes to fly
-    @param: stopover_budget
-      The maximum number of stopovers the passenger is willing to make
-    @param: monetary_budget
-      The maximum amount of money the passenger is willing to spend
-
-    @returns: ExtensibleList
-      The sorted list of viable destinations satisfying stopover and budget constraints.
-    """
     distances = Map()
     stopovers = Map()
     for node in range(len(graph._nodes)):
@@ -149,13 +151,12 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
         neighbors = graph.get_neighbours(current_node)
         for neighbor, edge_cost in neighbors:
             new_monetary_cost = current_cost + edge_cost
-            new_stopovers = current_stopovers + 1
-            if new_monetary_cost <= monetary_budget:
-                if new_monetary_cost < distances.find(neighbor.get_id()) or (
-                        new_monetary_cost == distances.find(neighbor.get_id()) and new_stopovers < stopovers.find(
-                        neighbor.get_id())):
-                    distances.insert_kv(neighbor.get_id(), new_monetary_cost)
-                    stopovers.insert_kv(neighbor.get_id(), new_stopovers)
+            if new_monetary_cost <= monetary_budget and new_monetary_cost < distances.find(neighbor.get_id()):
+                # Only increase the stopover count if the neighbor is not directly connected to the origin
+                new_stopovers = current_stopovers if current_node == origin else current_stopovers + 1
+                distances.insert_kv(neighbor.get_id(), new_monetary_cost)
+                stopovers.insert_kv(neighbor.get_id(), new_stopovers)
+                if neighbor.get_id() not in visited:
                     pq.insert(new_monetary_cost, (new_monetary_cost, neighbor.get_id(), new_stopovers))
 
     destinations.sort()
