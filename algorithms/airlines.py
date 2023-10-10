@@ -141,7 +141,7 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
             visited.add(current)
 
             if current != origin:
-                destinations.append(Destination(current, None, stopover_cost, monetary_cost))
+                destinations.append(Destination(current, None, monetary_cost, stopover_cost))
 
             neighbors = graph.get_neighbours(current)
             for neighbor, edge_cost in neighbors:
@@ -149,7 +149,7 @@ def dfs_traversal_modified(graph: Graph, origin: int, stopover_budget: int, mone
                 new_stopover_cost = stopover_cost + 1
 
                 if new_monetary_cost <= monetary_budget and new_stopover_cost <= stopover_budget:
-                    stack.push((neighbor.get_id(), new_stopover_cost, new_monetary_cost))
+                    stack.push((neighbor.get_id(), new_monetary_cost, new_stopover_cost))
 
     return destinations
 
