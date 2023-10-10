@@ -123,44 +123,46 @@ def enumerate_hubs(graph: Graph, min_degree: int) -> ExtensibleList:
 #     """
 #
 def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, monetary_budget: int) -> ExtensibleList:
-    # Initialize distances and stopovers with infinity and -1 respectively
-    distances = [float('inf')] * len(graph._nodes)
-    stopovers = [-1] * len(graph._nodes)
-    distances[origin] = 0
-    stopovers[origin] = 0
+    class Destination:
+        def __init__(self, node_id, monetary_cost, stopovers):
+            self.node_id = node_id
+            self.monetary_cost = monetary_cost
+            self.stopovers = stopovers
 
-    visited = [False] * len(graph._nodes)
+        def __lt__(self, other):
+            if self.monetary_cost == other.monetary_cost:
+                if self.stopovers == other.stopovers:
+                    return self.node_id < other.node_id
+                return self.stopovers < other.stopovers
+            return self.monetary_cost < other.monetary_cost
 
-    for _ in range(len(graph._nodes)):
-        # Find the node with the minimum distance value, from the set of nodes not yet processed
-        u = min_distance(distances, visited)
-        visited[u] = True
-
-        for neighbour, edge_cost in graph.get_neighbours(u):
-            neighbour_id = neighbour.get_id()
-            if not visited[neighbour_id] and distances[u] + edge_cost < distances[neighbour_id] and stopovers[u] + 1 <= stopover_budget:
-                distances[neighbour_id] = distances[u] + edge_cost
-                stopovers[neighbour_id] = stopovers[u] + 1
-
-    # Filter destinations based on monetary budget
+    visited = set()
     destinations = ExtensibleList()
-    for i, cost in enumerate(distances):
-        if cost <= monetary_budget:
-            destinations.append((i, cost, stopovers[i]))
+    queue = PriorityQueue()
+    queue.insert(0, (origin, 0, 0))  # (node_id, monetary_cost, stopovers)
 
-    # Sort destinations
-    destinations = ExtensibleList(sorted(destinations, key=lambda x: (x[1], x[2], x[0])))
+    while not queue.is_empty():
+        current_node_id, current_cost, current_stopovers = queue.remove_min()
 
+        if current_node_id in visited:
+            continue
+
+        visited.add(current_node_id)
+
+        if current_node_id != origin:
+            destinations.append(Destination(current_node_id, current_cost, current_stopovers))
+
+        for neighbour, edge_cost in graph.get_neighbours(current_node_id):
+            neighbour_id = neighbour.get_id()
+            if neighbour_id not in visited:
+                new_cost = current_cost + edge_cost
+                new_stopovers = current_stopovers + 1
+
+                if new_cost <= monetary_budget and new_stopovers <= stopover_budget:
+                    queue.insert(new_cost, (neighbour_id, new_cost, new_stopovers))
+
+    destinations.sort()
     return destinations
-
-def min_distance(distances, visited):
-    min_val = float('inf')
-    min_index = -1
-    for i, dist in enumerate(distances):
-        if not visited[i] and dist < min_val:
-            min_val = dist
-            min_index = i
-    return min_index
 
 
 def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
