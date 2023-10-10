@@ -133,36 +133,6 @@ def calculate_flight_budget(graph: Graph, origin: int, stopover_budget: int, mon
     pq = PriorityQueue()
     pq.insert(0, (0, origin, 0))  # Insert as a tuple (cost, node, stopovers)
 
-    # visited = set()#属于内置函数
-    # destinations = ExtensibleList()
-    #
-    # while not pq.is_empty():
-    #     current_tuple = pq.remove_min()
-    #     current_cost, current_node, current_stopovers = current_tuple
-    #
-    #     if current_node in visited:
-    #         continue
-    #     visited.add(current_node)
-    #
-    #     if current_node != origin:
-    #         destinations.append(Destination(current_node, None, current_cost, current_stopovers))
-    #
-    #     if current_cost > monetary_budget or current_stopovers > stopover_budget:
-    #         continue
-    #
-    #     neighbors = graph.get_neighbours(current_node)
-    #     for neighbor, edge_cost in neighbors:
-    #         new_monetary_cost = current_cost + edge_cost
-    #         # Only increase the stopover count if the neighbor is not directly connected to the origin
-    #         new_stopovers = current_stopovers if current_node == origin else current_stopovers + 1
-    #         if new_monetary_cost <= monetary_budget and new_monetary_cost < distances.find(neighbor.get_id()) and new_stopovers <= stopover_budget:
-    #             distances.insert_kv(neighbor.get_id(), new_monetary_cost)
-    #             stopovers.insert_kv(neighbor.get_id(), new_stopovers)
-    #             if neighbor.get_id() not in visited:
-    #                 pq.insert(new_monetary_cost, (new_monetary_cost, neighbor.get_id(), new_stopovers))
-    #
-    # destinations.sort()
-    # return destinations
     # Create a custom visited data structure to track visited nodes
     visited = [False] * len(graph._nodes)
 
