@@ -52,7 +52,8 @@ class Map:
                     self.insert(entry)
 
     def _get_hash(self, key):
-        return hash(key) % self.size
+        entry = Entry(key, None)
+        return entry.get_hash() % self.size
 
     def insert(self, entry: Entry) -> Any | None:
         """

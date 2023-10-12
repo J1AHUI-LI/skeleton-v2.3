@@ -28,11 +28,6 @@ class PriorityQueue:
         self._queue = [None]
         self._size = 0
 
-    def _swim(self, k):
-        while k > 1 and self._queue[k // 2].get_key() > self._queue[k].get_key():
-            self._queue[k], self._queue[k // 2] = self._queue[k // 2], self._queue[k]
-            k = k // 2
-
     def _sink(self, k):
         while 2 * k <= self._size:
             j = 2 * k
@@ -53,6 +48,11 @@ class PriorityQueue:
         self._queue.append(entry)
         self._size += 1
         self._swim(self._size)
+
+    def _swim(self, k):
+        while k > 1 and self._queue[k // 2].get_key() > self._queue[k].get_key():
+            self._queue[k], self._queue[k // 2] = self._queue[k // 2], self._queue[k]
+            k = k // 2
 
     def insert_fifo(self, data: Any) -> None:
         """
