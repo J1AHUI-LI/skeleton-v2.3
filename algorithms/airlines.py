@@ -5,7 +5,7 @@ The University of Queensland
 NOTE: This file will be used for marking.
 """
 
-from structures.m_entry import Destination
+from structures.m_entry import Destination, Entry
 from structures.m_extensible_list import ExtensibleList
 from structures.m_graph import Graph
 from structures.m_map import Map
@@ -185,7 +185,41 @@ def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
       and the value being the cost.
     """
 
-    pass
+    num_nodes = len(graph._nodes)
+    distances = [float('inf')] * num_nodes
+    visited = [False] * num_nodes
+    distances[origin] = 0
+
+    while True:
+        # Get the node with the minimum distance value, from the set of nodes that haven't been processed yet.
+        min_distance = float('inf')
+        node_with_min_distance = None
+
+        for i in range(num_nodes):
+            if not visited[i] and distances[i] < min_distance:
+                min_distance = distances[i]
+                node_with_min_distance = i
+
+        # If no node was selected, then all nodes have been visited.
+        if node_with_min_distance is None:
+            break
+
+        visited[node_with_min_distance] = True
+
+        neighbours = graph.get_neighbours(node_with_min_distance)
+        for neighbour, edge_cost in neighbours:
+            alt_distance = distances[node_with_min_distance] + edge_cost
+            if alt_distance < distances[neighbour.get_id()]:
+                distances[neighbour.get_id()] = alt_distance
+
+    # Return the results in the requested format.
+    results = ExtensibleList()
+    for i in range(num_nodes):
+        if distances[i] != float('inf'):
+            results.append(Entry(i, distances[i]))
+
+    return results
+
 
 
 def all_city_logistics(graph: Graph) -> Map:

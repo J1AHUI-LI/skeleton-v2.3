@@ -62,6 +62,9 @@ class Entry(Hashable):
         for char in key_str:
             hash_value += ord(char)
         return hash_value
+
+    def __str__(self) -> str:
+        return f"Entry(Key: {self._key}, Value: {self._value})"
     # You may add helpers/additional functionality below if you wish
 
 
