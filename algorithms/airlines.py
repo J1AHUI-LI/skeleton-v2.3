@@ -184,7 +184,6 @@ def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
       Please use the Entry type here, with the key being the node identifier,
       and the value being the cost.
     """
-
     num_nodes = len(graph._nodes)
     distances = [float('inf')] * num_nodes
     visited = [False] * num_nodes
@@ -195,10 +194,12 @@ def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
         min_distance = float('inf')
         node_with_min_distance = None
 
-        for i in range(num_nodes):
+        i = 0  # Counter to replace range
+        while i < num_nodes:
             if not visited[i] and distances[i] < min_distance:
                 min_distance = distances[i]
                 node_with_min_distance = i
+            i += 1  # Increment the counter
 
         # If no node was selected, then all nodes have been visited.
         if node_with_min_distance is None:
@@ -214,12 +215,14 @@ def maintenance_optimisation(graph: Graph, origin: int) -> ExtensibleList:
 
     # Return the results in the requested format.
     results = ExtensibleList()
-    for i in range(num_nodes):
+
+    i = 0  # Counter to replace range
+    while i < num_nodes:
         if distances[i] != float('inf'):
             results.append(Entry(i, distances[i]))
+        i += 1  # Increment the counter
 
     return results
-
 
 
 def all_city_logistics(graph: Graph) -> Map:
