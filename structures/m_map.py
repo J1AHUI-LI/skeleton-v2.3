@@ -29,7 +29,7 @@ class Map:
     An implementation of the Map ADT.
     The provided methods consume keys and values via the Entry type.
     """
-    LOAD_FACTOR = 0.75  # 一般来说，装填因子设置为 0.75 是比较合适的
+    LOAD_FACTOR = 0.75
 
     def __init__(self) -> None:
         """
@@ -45,7 +45,7 @@ class Map:
         old_map = self.map
         self.size = self.size * 2
         self.map = [None] * self.size
-        self.element_count = 0  # 重新计数
+        self.element_count = 0
         for bucket in old_map:
             if bucket is not None:
                 for entry in bucket:
@@ -108,7 +108,7 @@ class Map:
                     self.map[key_hash].pop(i)
                     self.element_count -= 1
                     if not self.map[key_hash]:
-                        self.map[key_hash] = None  # 如果列表为空，则设置为 None
+                        self.map[key_hash] = None
                     return
 
     def find(self, key: Any) -> Any | None:
@@ -121,8 +121,8 @@ class Map:
         key_hash = self._get_hash(key)
         if self.map[key_hash] is not None:
             for entry in self.map[key_hash]:
-                if entry.get_key() == key:  # 使用 Entry 对象的方法获取键
-                    return entry.get_value()  # 返回 Entry 对象的值
+                if entry.get_key() == key:
+                    return entry.get_value()
         return None
 
 

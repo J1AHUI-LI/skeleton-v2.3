@@ -74,6 +74,7 @@ class PriorityQueue:
             return None
         return self._queue[1].get_value()
 
+
     def remove_min(self) -> Any:
         """
         Extract (remove) the highest priority value from the queue.
